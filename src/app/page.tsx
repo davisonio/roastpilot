@@ -1,65 +1,96 @@
-import Image from "next/image";
+import Link from "next/link";
+import { db } from "@/db";
+import { submissions } from "@/db/schema";
+import { desc, eq } from "drizzle-orm";
+import { SiteHeader, SiteFooter } from "@/components/site-header";
+import { VerdictStamp } from "@/components/verdict-stamp";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const rows = db
+    .select()
+    .from(submissions)
+    .where(eq(submissions.moderationStatus, "approved"))
+    .orderBy(desc(submissions.createdAt))
+    .limit(30)
+    .all();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <>
+      <SiteHeader />
+      <main className="mx-auto w-full max-w-4xl px-6 py-16">
+        <section className="grid items-baseline gap-8 md:grid-cols-[1.2fr_1fr]">
+          <h1 className="display text-5xl leading-none text-ink md:text-7xl">
+            A quiet bench.
+            <br />
+            A loud crowd.
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-lg text-mute md:text-xl">
+            Submit a situation. The model writes the opinion. Verified humans
+            disagree. Welcome to the docket.
           </p>
+        </section>
+
+        <div className="mt-12 flex items-baseline gap-6 border-b border-rule pb-3 text-sm">
+          <span className="border-b-2 border-ember pb-3 text-ink">
+            New
+          </span>
+          <span className="text-mute">Hot</span>
+          <span className="text-mute">Controversial</span>
+          <span className="text-mute">AI vs Crowd</span>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+        <ul className="mt-2 divide-y divide-rule">
+          {rows.length === 0 && <EmptyState />}
+          {rows.map((row) => (
+            <li key={row.id} className="py-8">
+              <Link href={`/v/${row.id}`} className="group block">
+                <div className="flex items-center justify-between text-xs text-mute">
+                  <span className="tnum">
+                    {new Date(row.createdAt).toLocaleDateString(undefined, {
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </span>
+                  {row.severity === "nuclear" && (
+                    <span className="display text-base text-ember">
+                      Nuclear
+                    </span>
+                  )}
+                </div>
+                <p className="mt-2 line-clamp-3 text-lg leading-relaxed text-ink group-hover:text-ember-deep">
+                  {row.body}
+                </p>
+                <div className="mt-3 flex items-baseline gap-6">
+                  {row.aiVerdict ? (
+                    <VerdictStamp verdict={row.aiVerdict} size="sm" />
+                  ) : (
+                    <span className="display text-sm text-mute">
+                      deliberating…
+                    </span>
+                  )}
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </main>
-    </div>
+      <SiteFooter />
+    </>
+  );
+}
+
+function EmptyState() {
+  return (
+    <li className="py-16 text-center">
+      <p className="display text-3xl text-mute">The docket is empty.</p>
+      <Link
+        href="/submit"
+        className="mt-4 inline-block text-sm text-ink underline underline-offset-4 hover:text-ember"
+      >
+        be the first
+      </Link>
+    </li>
   );
 }

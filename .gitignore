@@ -20,6 +20,9 @@
 # production
 /build
 
+# local seed imports
+/data/aita-*.json
+
 # misc
 .DS_Store
 *.pem
@@ -39,3 +42,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local db
+roastpilot.db
+roastpilot.db-shm
+roastpilot.db-wal
+
+# env
+.env
+.env.local
+
