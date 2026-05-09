@@ -7,6 +7,7 @@ export type Comment = {
   authorName: string;
   verdict: Verdict;
   body: string;
+  ignitions: number;
   isSeed: boolean;
   createdAt: Date;
 };
@@ -50,6 +51,8 @@ function init(): Store {
         authorName: c.authorName,
         verdict: c.verdict,
         body: c.body,
+        // Seed comments start with realistic ignition counts based on position
+        ignitions: Math.max(0, (sp.comments.length - ci) * 3 + Math.floor(Math.random() * 8)),
         isSeed: true,
         createdAt: new Date(createdAt.getTime() + (ci + 1) * 60 * 1000),
       })),
@@ -120,9 +123,42 @@ export function addComment(
     authorName: c.authorName,
     verdict: c.verdict,
     body: c.body,
+    ignitions: 0,
     isSeed: false,
     createdAt: new Date(),
   };
   p.comments.push(comment);
   return comment;
+}
+
+export function igniteComment(commentId: string): number | null {
+  for (const p of store.posts) {
+    const c = p.comments.find((c) => c.id === commentId);
+    if (c) {
+      c.ignitions += 1;
+      return c.ignitions;
+    }
+  }
+  return null;
+}
+
+/** For leaderboard: rank unique commenters by total ignitions. */
+export function getLeaderboard(): Array<{
+  handle: string;
+  ignitions: number;
+  commentCount: number;
+}> {
+  const map = new Map<string, { ignitions: number; commentCount: number }>();
+  for (const p of store.posts) {
+    for (const c of p.comments) {
+      const entry = map.get(c.authorName) ?? { ignitions: 0, commentCount: 0 };
+      entry.ignitions += c.ignitions;
+      entry.commentCount += 1;
+      map.set(c.authorName, entry);
+    }
+  }
+  return Array.from(map.entries())
+    .map(([handle, data]) => ({ handle, ...data }))
+    .sort((a, b) => b.ignitions - a.ignitions)
+    .slice(0, 20);
 }
