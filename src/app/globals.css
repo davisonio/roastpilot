@@ -64,6 +64,27 @@ body {
   font-feature-settings: "rlig" 1, "calt" 1;
 }
 
+/* Whole-page ember pulse — fixed radial glow that breathes from below */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 110%, rgba(255, 107, 26, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 50% 105%, rgba(255, 140, 66, 0.08) 0%, transparent 60%);
+  animation: page-breathe 7s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes page-breathe {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}
+
+/* Ensure content sits above the background glow */
+header, main, footer { position: relative; z-index: 1; }
+
 ::selection {
   background-color: rgba(255, 107, 26, 0.3);
   color: var(--ink);

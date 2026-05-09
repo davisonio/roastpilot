@@ -3,6 +3,7 @@ import { getPinned, listFeed } from "@/lib/store";
 import { VerdictBadge } from "@/components/VerdictBadge";
 import { VerdictGlossary } from "@/components/VerdictGlossary";
 import { HandleBadge } from "@/components/HandleBadge";
+import { EmailSignup } from "@/components/EmailSignup";
 import { heatLevel, heatGlowClass } from "@/lib/utils";
 import type { Verdict } from "@/lib/verdicts";
 
@@ -31,7 +32,10 @@ export default async function Home() {
           <br />
           <span className="text-accent-bright">Are you the asshole?</span>
         </h1>
-        <p className="mt-5 max-w-xl text-lg text-ink-soft leading-relaxed">
+        <p className="mt-3 text-sm font-medium text-accent/70 tracking-wide">
+          spoiler: you&rsquo;re probably cooked.
+        </p>
+        <p className="mt-4 max-w-xl text-lg text-ink-soft leading-relaxed">
           Post a dilemma. AI drops a verdict. The court of public opinion piles on after.
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -44,6 +48,10 @@ export default async function Home() {
           <Link href="/leaderboard" className="text-sm text-ink-soft hover:text-accent transition-colors">
             🔥 {posts.reduce((s, p) => s + p.comments.length, 0)} verdicts on the board
           </Link>
+        </div>
+        <div className="mt-5">
+          <p className="text-xs text-ink-faint mb-2 uppercase tracking-[0.14em]">Get early access</p>
+          <EmailSignup />
         </div>
       </section>
 
