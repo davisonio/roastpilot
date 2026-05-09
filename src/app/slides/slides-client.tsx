@@ -515,7 +515,7 @@ export function SlidesClient() {
         autoPlay
         preload="auto"
         aria-label="Burn Baby Burn soundtrack"
-        className="fixed bottom-6 right-5 z-50 h-10 w-[16rem] max-w-[calc(100vw-2.5rem)] rounded-md border border-border bg-background/85 backdrop-blur-xl sm:right-8"
+        className="fixed right-5 top-16 z-50 h-10 w-48 max-w-[calc(100vw-2.5rem)] rounded-md border border-border bg-background/85 backdrop-blur-xl sm:bottom-6 sm:right-8 sm:top-auto sm:w-[16rem]"
       />
 
       <div className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-lg border border-border bg-background/85 px-3 py-2 backdrop-blur-xl">
