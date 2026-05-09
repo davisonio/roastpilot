@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Instrument_Sans } from "next/font/google";
+import { WalletProviders } from "@/components/wallet-providers";
 import "./globals.css";
 
 const display = Cormorant_Garamond({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["500", "600"],
   style: ["italic"],
   display: "swap",
 });
@@ -31,8 +32,8 @@ export default function RootLayout({
       lang="en"
       className={`${display.variable} ${sans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-paper text-ink">
-        {children}
+      <body className="min-h-full bg-paper text-ink">
+        <WalletProviders>{children}</WalletProviders>
       </body>
     </html>
   );

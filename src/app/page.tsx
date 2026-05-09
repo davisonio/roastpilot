@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { db } from "@/db";
-import { submissions } from "@/db/schema";
+import { submissions, votes, type Verdict } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { SiteHeader, SiteFooter } from "@/components/site-header";
-import { VerdictStamp } from "@/components/verdict-stamp";
+import { VerdictPill, SeverityPill } from "@/components/verdict-pill";
 
 export const dynamic = "force-dynamic";
 
@@ -13,68 +13,114 @@ export default async function Home() {
     .from(submissions)
     .where(eq(submissions.moderationStatus, "approved"))
     .orderBy(desc(submissions.createdAt))
-    .limit(30)
+    .limit(40)
     .all();
+
+  // Pull tallies for the visible page in one go.
+  const tallies = new Map<string, Record<Verdict, number>>();
+  for (const r of rows) {
+    const counts = db
+      .select({ verdict: votes.verdict, embers: votes.embers })
+      .from(votes)
+      .where(eq(votes.submissionId, r.id))
+      .all();
+    const acc: Record<Verdict, number> = {
+      YTA: 0,
+      NTA: 0,
+      ESH: 0,
+      NAH: 0,
+      INFO: 0,
+    };
+    for (const c of counts) acc[c.verdict] += 1;
+    tallies.set(r.id, acc);
+  }
 
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto w-full max-w-4xl px-6 py-16">
-        <section className="grid items-baseline gap-8 md:grid-cols-[1.2fr_1fr]">
-          <h1 className="display text-5xl leading-none text-ink md:text-7xl">
-            A quiet bench.
+      <main className="mx-auto w-full max-w-7xl px-6 py-10">
+        <section className="mb-8 grid items-end gap-6 md:grid-cols-[1.4fr_1fr]">
+          <h1 className="display text-5xl leading-[0.95] text-ink md:text-6xl">
+            Submit a situation.
             <br />
-            A loud crowd.
+            <span className="text-ember">Get the verdict.</span>
           </h1>
-          <p className="text-lg text-mute md:text-xl">
-            Submit a situation. The model writes the opinion. Verified humans
-            disagree. Welcome to the docket.
+          <p className="text-base leading-relaxed text-mute md:text-lg">
+            An AI delivers the opinion. Verified humans deliver the truth.
+            <br className="hidden md:block" />
+            Earn 🔥 Roastpoints for great takes.
           </p>
         </section>
 
-        <div className="mt-12 flex items-baseline gap-6 border-b border-rule pb-3 text-sm">
-          <span className="border-b-2 border-ember pb-3 text-ink">
-            New
-          </span>
-          <span className="text-mute">Hot</span>
-          <span className="text-mute">Controversial</span>
-          <span className="text-mute">AI vs Crowd</span>
+        <div className="mb-5 flex items-center gap-1 border-b border-rule">
+          {(["New", "Hot", "Controversial", "AI vs Crowd"] as const).map(
+            (label, i) => (
+              <span
+                key={label}
+                className={`relative px-3 py-2 text-sm font-medium ${i === 0 ? "text-ink" : "text-mute"}`}
+              >
+                {label}
+                {i === 0 && (
+                  <span className="absolute bottom-[-1px] left-2 right-2 h-[2px] rounded-full bg-ember" />
+                )}
+              </span>
+            ),
+          )}
         </div>
 
-        <ul className="mt-2 divide-y divide-rule">
-          {rows.length === 0 && <EmptyState />}
-          {rows.map((row) => (
-            <li key={row.id} className="py-8">
-              <Link href={`/v/${row.id}`} className="group block">
-                <div className="flex items-center justify-between text-xs text-mute">
-                  <span className="tnum">
-                    {new Date(row.createdAt).toLocaleDateString(undefined, {
-                      day: "numeric",
-                      month: "short",
-                    })}
-                  </span>
-                  {row.severity === "nuclear" && (
-                    <span className="display text-base text-ember">
-                      Nuclear
-                    </span>
-                  )}
-                </div>
-                <p className="mt-2 line-clamp-3 text-lg leading-relaxed text-ink group-hover:text-ember-deep">
-                  {row.body}
-                </p>
-                <div className="mt-3 flex items-baseline gap-6">
-                  {row.aiVerdict ? (
-                    <VerdictStamp verdict={row.aiVerdict} size="sm" />
-                  ) : (
-                    <span className="display text-sm text-mute">
-                      deliberating…
-                    </span>
-                  )}
-                </div>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        {rows.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <ul className="grid gap-4 md:grid-cols-2">
+            {rows.map((r) => {
+              const tally = tallies.get(r.id) ?? null;
+              const total = tally
+                ? tally.YTA + tally.NTA + tally.ESH + tally.NAH
+                : 0;
+              return (
+                <li key={r.id}>
+                  <Link
+                    href={`/v/${r.id}`}
+                    className="card flex h-full flex-col gap-4 p-5 transition hover:shadow-card-lg"
+                  >
+                    <div className="flex items-center justify-between text-xs text-mute">
+                      <span className="font-medium text-ink tnum">
+                        Case #{r.caseNumber}
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <SeverityPill severity={r.severity} />
+                        <span>
+                          {new Date(r.createdAt).toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </span>
+                      </span>
+                    </div>
+
+                    <p className="line-clamp-3 text-[15px] leading-relaxed text-ink">
+                      {r.body}
+                    </p>
+
+                    <div className="mt-auto flex items-center justify-between text-sm">
+                      {r.aiVerdict ? (
+                        <div className="flex items-center gap-2 text-mute">
+                          <span>AI:</span>
+                          <VerdictPill verdict={r.aiVerdict} />
+                        </div>
+                      ) : (
+                        <span className="text-mute">deliberating…</span>
+                      )}
+                      <span className="text-mute tnum">
+                        {total} {total === 1 ? "vote" : "votes"}
+                      </span>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </main>
       <SiteFooter />
     </>
@@ -83,14 +129,14 @@ export default async function Home() {
 
 function EmptyState() {
   return (
-    <li className="py-16 text-center">
+    <div className="card flex flex-col items-center gap-3 py-16 text-center">
       <p className="display text-3xl text-mute">The docket is empty.</p>
       <Link
         href="/submit"
-        className="mt-4 inline-block text-sm text-ink underline underline-offset-4 hover:text-ember"
+        className="rounded-full bg-ember px-4 py-2 text-sm font-medium text-white hover:bg-ember-deep"
       >
-        be the first
+        Be the first
       </Link>
-    </li>
+    </div>
   );
 }

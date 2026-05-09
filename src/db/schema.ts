@@ -16,8 +16,10 @@ export type ModerationStatus = (typeof MODERATION_STATUSES)[number];
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
   walletAddress: text("wallet_address").notNull().unique(),
-  handle: text("handle").unique(), // optional — anon by default
+  handleSol: text("handle_sol").notNull().unique(), // generated .sol-style handle
   pohVerified: integer("poh_verified", { mode: "boolean" }).notNull().default(false),
+  paidSignup: integer("paid_signup", { mode: "boolean" }).notNull().default(false),
+  roastPoints: integer("roast_points").notNull().default(0),
   // ember reputation: count of takes that hit "top take" status
   emberReputation: integer("ember_reputation").notNull().default(0),
   createdAt: integer("created_at", { mode: "timestamp" })
@@ -25,11 +27,25 @@ export const users = sqliteTable("users", {
     .default(sql`(unixepoch())`),
 });
 
+// Categories shown on submit + Explore feed.
+export const CATEGORIES = [
+  "relationships",
+  "family",
+  "work",
+  "money",
+  "friends",
+  "petty",
+  "other",
+] as const;
+export type Category = (typeof CATEGORIES)[number];
+
 export const submissions = sqliteTable(
   "submissions",
   {
     id: text("id").primaryKey(),
+    caseNumber: integer("case_number").notNull(), // human-friendly Case #
     body: text("body").notNull(),
+    category: text("category", { enum: CATEGORIES }).notNull().default("other"),
     severity: text("severity", { enum: SEVERITIES }).notNull().default("house"),
 
     // Pre-publish moderation
@@ -57,6 +73,9 @@ export const submissions = sqliteTable(
   }),
 );
 
+export const TAKE_TAGS = ["funny", "helpful", "savage"] as const;
+export type TakeTag = (typeof TAKE_TAGS)[number];
+
 export const votes = sqliteTable(
   "votes",
   {
@@ -69,6 +88,7 @@ export const votes = sqliteTable(
       .references(() => users.id, { onDelete: "cascade" }),
     verdict: text("verdict", { enum: VERDICTS }).notNull(),
     take: text("take"), // optional one-line take
+    takeTag: text("take_tag", { enum: TAKE_TAGS }), // funny | helpful | savage
     isCounterRoast: integer("is_counter_roast", { mode: "boolean" })
       .notNull()
       .default(false),
@@ -80,6 +100,40 @@ export const votes = sqliteTable(
   (t) => ({
     submissionIdx: index("votes_submission_idx").on(t.submissionId),
     userIdx: index("votes_user_idx").on(t.userId),
+  }),
+);
+
+// Plead-your-case follow-ups: submitter posts an update; AI re-judges.
+export const followUps = sqliteTable("follow_ups", {
+  id: text("id").primaryKey(),
+  submissionId: text("submission_id")
+    .notNull()
+    .references(() => submissions.id, { onDelete: "cascade" }),
+  kind: text("kind", { enum: ["plead", "ask"] as const }).notNull(),
+  prompt: text("prompt").notNull(),
+  aiResponse: text("ai_response"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .default(sql`(unixepoch())`),
+});
+
+// Append-only points ledger. balance = sum of deltas.
+export const pointsLedger = sqliteTable(
+  "points_ledger",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    delta: integer("delta").notNull(), // positive earn, negative spend
+    reason: text("reason").notNull(),
+    refId: text("ref_id"), // optional submission/vote id
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .default(sql`(unixepoch())`),
+  },
+  (t) => ({
+    userIdx: index("ledger_user_idx").on(t.userId),
   }),
 );
 
