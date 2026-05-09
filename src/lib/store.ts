@@ -1,5 +1,8 @@
+// Data access layer — backed by Supabase.
+// All functions are async and call the server-side client.
+
+import { db } from "./supabase";
 import type { Verdict } from "./verdicts";
-import { SEED_POSTS } from "@/data/seed";
 
 export type Comment = {
   id: string;
@@ -25,140 +28,147 @@ export type Post = {
   comments: Comment[];
 };
 
-type Store = { posts: Post[] };
+function mapPost(row: Record<string, unknown>, comments: Comment[] = []): Post {
+  return {
+    id: row.id as string,
+    authorName: row.author_name as string,
+    title: row.title as string,
+    body: row.body as string,
+    aiVerdict: (row.ai_verdict as Verdict) ?? null,
+    aiResponse: (row.ai_response as string) ?? null,
+    isPinned: row.is_pinned as boolean,
+    isSeed: true,
+    createdAt: new Date(row.created_at as string),
+    comments,
+  };
+}
 
-const g = globalThis as unknown as { __roastpilotStore?: Store };
+function mapComment(row: Record<string, unknown>): Comment {
+  return {
+    id: row.id as string,
+    postId: row.post_id as string,
+    authorName: row.author_name as string,
+    verdict: row.verdict as Verdict,
+    body: row.body as string,
+    ignitions: (row.ignitions as number) ?? 0,
+    isSeed: true,
+    createdAt: new Date(row.created_at as string),
+  };
+}
 
-function init(): Store {
-  const now = Date.now();
-  const total = SEED_POSTS.length;
-  const posts: Post[] = SEED_POSTS.map((sp, i) => {
-    const id = `seed-${i}`;
-    const createdAt = new Date(now - (total - i) * 7 * 60 * 1000);
+export async function getPinned(): Promise<Post | null> {
+  const { data } = await db
+    .from("posts")
+    .select("*, comments(*)")
+    .eq("is_pinned", true)
+    .order("created_at", { referencedTable: "comments", ascending: true })
+    .maybeSingle();
+  if (!data) return null;
+  const comments = ((data.comments as Record<string, unknown>[]) ?? []).map(mapComment);
+  return mapPost(data as unknown as Record<string, unknown>, comments);
+}
+
+export async function listFeed(): Promise<Post[]> {
+  const { data } = await db
+    .from("posts")
+    .select("*, comments(count)")
+    .eq("is_pinned", false)
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (!data) return [];
+  return (data as unknown as Record<string, unknown>[]).map((row) => {
+    const countRow = (row.comments as { count: number }[])?.[0];
+    const count = countRow?.count ?? 0;
     return {
-      id,
-      authorName: sp.authorName,
-      title: sp.title,
-      body: sp.body,
-      aiVerdict: sp.aiVerdict ?? null,
-      aiResponse: sp.aiResponse ?? null,
-      isPinned: sp.isPinned ?? false,
-      isSeed: true,
-      createdAt,
-      comments: sp.comments.map((c, ci) => ({
-        id: `seed-${i}-c-${ci}`,
-        postId: id,
-        authorName: c.authorName,
-        verdict: c.verdict,
-        body: c.body,
-        // Seed comments start with realistic ignition counts based on position
-        ignitions: Math.max(0, (sp.comments.length - ci) * 3 + Math.floor(Math.random() * 8)),
-        isSeed: true,
-        createdAt: new Date(createdAt.getTime() + (ci + 1) * 60 * 1000),
-      })),
+      ...mapPost(row),
+      comments: Array(count).fill(null) as Comment[], // length only, no data
     };
   });
-  return { posts };
 }
 
-const store: Store = (g.__roastpilotStore ??= init());
-
-function uid(prefix: string) {
-  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+export async function getPost(id: string): Promise<Post | null> {
+  const { data } = await db
+    .from("posts")
+    .select("*, comments(*)")
+    .eq("id", id)
+    .order("created_at", { referencedTable: "comments", ascending: true })
+    .maybeSingle();
+  if (!data) return null;
+  const comments = ((data.comments as Record<string, unknown>[]) ?? []).map(mapComment);
+  return mapPost(data as unknown as Record<string, unknown>, comments);
 }
 
-export function getPinned(): Post | null {
-  return store.posts.find((p) => p.isPinned) ?? null;
-}
-
-export function listFeed(): Post[] {
-  return store.posts
-    .filter((p) => !p.isPinned)
-    .slice()
-    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-    .slice(0, 50);
-}
-
-export function getPost(id: string): Post | null {
-  return store.posts.find((p) => p.id === id) ?? null;
-}
-
-export function createPost(input: {
+export async function createPost(input: {
   title: string;
   body: string;
   authorName: string;
-}): Post {
-  const post: Post = {
-    id: uid("p"),
-    authorName: input.authorName,
-    title: input.title,
-    body: input.body,
-    aiVerdict: null,
-    aiResponse: null,
-    isPinned: false,
-    isSeed: false,
-    createdAt: new Date(),
-    comments: [],
-  };
-  store.posts.push(post);
-  return post;
+}): Promise<Post> {
+  const { data, error } = await db
+    .from("posts")
+    .insert({
+      author_name: input.authorName,
+      title: input.title,
+      body: input.body,
+    })
+    .select()
+    .single();
+  if (error || !data) throw new Error(error?.message ?? "Failed to create post");
+  return mapPost(data as unknown as Record<string, unknown>);
 }
 
-export function setVerdict(id: string, verdict: Verdict, response: string) {
-  const p = store.posts.find((p) => p.id === id);
-  if (!p) return;
-  p.aiVerdict = verdict;
-  p.aiResponse = response;
+export async function setVerdict(id: string, verdict: Verdict, response: string) {
+  await db
+    .from("posts")
+    .update({ ai_verdict: verdict, ai_response: response })
+    .eq("id", id);
 }
 
-export function addComment(
+export async function addComment(
   postId: string,
   c: { authorName: string; verdict: Verdict; body: string },
-): Comment | null {
-  const p = store.posts.find((p) => p.id === postId);
-  if (!p) return null;
-  const comment: Comment = {
-    id: uid("c"),
-    postId,
-    authorName: c.authorName,
-    verdict: c.verdict,
-    body: c.body,
-    ignitions: 0,
-    isSeed: false,
-    createdAt: new Date(),
-  };
-  p.comments.push(comment);
-  return comment;
+): Promise<Comment | null> {
+  const { data, error } = await db
+    .from("comments")
+    .insert({
+      post_id: postId,
+      author_name: c.authorName,
+      verdict: c.verdict,
+      body: c.body,
+    })
+    .select()
+    .single();
+  if (error || !data) return null;
+  return mapComment(data as unknown as Record<string, unknown>);
 }
 
-export function igniteComment(commentId: string): number | null {
-  for (const p of store.posts) {
-    const c = p.comments.find((c) => c.id === commentId);
-    if (c) {
-      c.ignitions += 1;
-      return c.ignitions;
-    }
-  }
-  return null;
+export async function igniteComment(commentId: string): Promise<number | null> {
+  const { data: before } = await db
+    .from("comments")
+    .select("ignitions")
+    .eq("id", commentId)
+    .single();
+  if (!before) return null;
+  const next = ((before as { ignitions: number }).ignitions ?? 0) + 1;
+  await db.from("comments").update({ ignitions: next }).eq("id", commentId);
+  return next;
 }
 
-/** For leaderboard: rank unique commenters by total ignitions. */
-export function getLeaderboard(): Array<{
-  handle: string;
-  ignitions: number;
-  commentCount: number;
-}> {
+export async function getLeaderboard(): Promise<
+  Array<{ handle: string; ignitions: number; commentCount: number }>
+> {
+  const { data } = await db
+    .from("comments")
+    .select("author_name, ignitions");
+  if (!data) return [];
   const map = new Map<string, { ignitions: number; commentCount: number }>();
-  for (const p of store.posts) {
-    for (const c of p.comments) {
-      const entry = map.get(c.authorName) ?? { ignitions: 0, commentCount: 0 };
-      entry.ignitions += c.ignitions;
-      entry.commentCount += 1;
-      map.set(c.authorName, entry);
-    }
+  for (const row of data as { author_name: string; ignitions: number }[]) {
+    const entry = map.get(row.author_name) ?? { ignitions: 0, commentCount: 0 };
+    entry.ignitions += row.ignitions;
+    entry.commentCount += 1;
+    map.set(row.author_name, entry);
   }
   return Array.from(map.entries())
-    .map(([handle, data]) => ({ handle, ...data }))
+    .map(([handle, d]) => ({ handle, ...d }))
     .sort((a, b) => b.ignitions - a.ignitions)
     .slice(0, 20);
 }

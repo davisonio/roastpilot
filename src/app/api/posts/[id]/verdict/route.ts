@@ -8,7 +8,7 @@ export async function POST(
   context: { params: Promise<{ id: string }> },
 ) {
   const { id } = await context.params;
-  const post = getPost(id);
+  const post = await getPost(id);
   if (!post) return new Response("Not found", { status: 404 });
 
   const encoder = new TextEncoder();
@@ -19,7 +19,7 @@ export async function POST(
           if ("delta" in chunk) {
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ delta: chunk.delta })}\n\n`));
           } else {
-            setVerdict(post.id, chunk.done.verdict, chunk.done.response);
+            await setVerdict(post.id, chunk.done.verdict, chunk.done.response);
             controller.enqueue(
               encoder.encode(`data: ${JSON.stringify({ done: chunk.done })}\n\n`),
             );

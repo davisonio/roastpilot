@@ -18,7 +18,7 @@ export async function POST(
   if (body.length < 10)
     return NextResponse.json({ error: "Say more than that, at least 10 characters." }, { status: 400 });
 
-  const post = getPost(id);
+  const post = await getPost(id);
   if (!post) return NextResponse.json({ error: "Post not found" }, { status: 404 });
 
   if (post.authorName.toLowerCase() === authorName.toLowerCase()) {
@@ -28,6 +28,6 @@ export async function POST(
     );
   }
 
-  const comment = addComment(post.id, { authorName, verdict, body });
+  const comment = await addComment(post.id, { authorName, verdict, body });
   return NextResponse.json({ id: comment?.id });
 }

@@ -5,8 +5,8 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-export default function Leaderboard() {
-  const leaders = getLeaderboard();
+export default async function Leaderboard() {
+  const leaders = await getLeaderboard();
 
   return (
     <div className="mx-auto max-w-3xl px-6 pt-10 pb-20">

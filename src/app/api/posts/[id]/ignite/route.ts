@@ -13,7 +13,7 @@ export async function POST(
   const parsed = Input.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "bad input" }, { status: 400 });
 
-  const count = igniteComment(parsed.data.commentId);
+  const count = await igniteComment(parsed.data.commentId);
   if (count === null) return NextResponse.json({ error: "not found" }, { status: 404 });
 
   return NextResponse.json({ ignitions: count });

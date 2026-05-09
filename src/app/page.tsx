@@ -18,8 +18,8 @@ function timeAgo(date: Date) {
 }
 
 export default async function Home() {
-  const pinned = getPinned();
-  const posts = listFeed();
+  const pinned = await getPinned();
+  const posts = await listFeed();
 
   return (
     <div className="mx-auto max-w-5xl px-6 pt-10 pb-20">

@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   if (title.length < 8) return NextResponse.json({ error: "Title too short" }, { status: 400 });
   if (text.length < 30) return NextResponse.json({ error: "Story too short" }, { status: 400 });
 
-  const post = createPost({ title, body: text, authorName });
+  const post = await createPost({ title, body: text, authorName });
 
   generateVerdict(title, text)
     .then((result) => setVerdict(post.id, result.verdict, result.response))

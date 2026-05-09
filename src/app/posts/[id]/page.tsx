@@ -25,7 +25,7 @@ export default async function PostPage({
 }) {
   const { id } = await params;
   const { fresh } = await searchParams;
-  const post = getPost(id);
+  const post = await getPost(id);
   if (!post) notFound();
 
   const tally = post.comments.reduce<Record<string, number>>((acc, c) => {
