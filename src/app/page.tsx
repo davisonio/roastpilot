@@ -121,34 +121,31 @@ function PinnedCard({ post }: { post: FeedPost }) {
   return (
     <Link
       href={`/posts/${post.id}`}
-      className="block group rounded-2xl border border-accent/60 bg-paper p-6 noise-texture hover:border-accent transition-heat relative overflow-hidden heat-glow-1 hover:heat-glow-2"
+      className="block group rounded-2xl border border-accent/40 bg-paper p-6 noise-texture hover:border-accent/80 transition-heat relative heat-glow-1 hover:heat-glow-2"
     >
-      <span className="absolute -top-3 left-5 bg-accent text-background text-[10px] uppercase tracking-[0.2em] font-bold px-2.5 py-1 rounded-full shadow-[0_0_15px_rgba(255,107,26,0.5)]">
-        Live demo · pinned
-      </span>
-      <div className="flex items-start justify-between gap-6 relative">
-        <div>
-          <h3 className="font-display text-2xl font-semibold text-ink leading-tight group-hover:text-accent transition-colors">
-            {post.title}
-          </h3>
-          <p className="mt-3 text-ink-soft line-clamp-3 leading-relaxed">{post.body}</p>
-          <div className="mt-4 flex items-center gap-3 text-sm text-ink-soft">
-            <span className="font-medium text-ink">u/{post.authorName}</span>
-            <span>·</span>
-            <span>{timeAgo(post.createdAt)}</span>
-            <span>·</span>
-            <span>{post._count.comments} human verdicts</span>
-          </div>
-        </div>
-        <div className="flex flex-col items-end gap-2 shrink-0">
-          {post.aiVerdict ? (
-            <VerdictBadge verdict={post.aiVerdict} size="lg" showLabel />
-          ) : (
-            <span className="text-xs uppercase tracking-[0.16em] font-semibold text-accent border border-accent rounded-full px-3 py-1">
-              Awaiting Claude →
-            </span>
-          )}
-        </div>
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <span className="inline-flex items-center gap-1.5 bg-accent/10 text-accent text-[10px] uppercase tracking-[0.2em] font-bold px-2.5 py-1 rounded-full">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse-soft" />
+          Live demo · pinned
+        </span>
+        {post.aiVerdict ? (
+          <VerdictBadge verdict={post.aiVerdict} />
+        ) : (
+          <span className="text-[10px] uppercase tracking-[0.16em] font-semibold text-accent border border-accent/60 rounded-full px-2.5 py-1">
+            Awaiting Claude →
+          </span>
+        )}
+      </div>
+      <h3 className="font-display text-[28px] sm:text-3xl font-semibold text-ink leading-[1.15] group-hover:text-accent transition-colors max-w-3xl">
+        {post.title}
+      </h3>
+      <p className="mt-3 text-ink-soft line-clamp-2 leading-relaxed max-w-3xl">{post.body}</p>
+      <div className="mt-4 flex items-center gap-3 text-sm text-ink-soft">
+        <span className="font-medium text-ink">u/{post.authorName}</span>
+        <span>·</span>
+        <span>{timeAgo(post.createdAt)}</span>
+        <span>·</span>
+        <span>{post._count.comments} human verdicts</span>
       </div>
     </Link>
   );
