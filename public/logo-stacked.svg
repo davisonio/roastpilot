@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" role="img" aria-label="Roastpilot">
+  <defs>
+    <linearGradient id="rp-flame-s" x1="0.5" y1="0" x2="0.5" y2="1">
+      <stop offset="0%" stop-color="#FF8A2B"/>
+      <stop offset="55%" stop-color="#F76A2E"/>
+      <stop offset="100%" stop-color="#EE4F37"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(100 20)">
+    <path fill="url(#rp-flame-s)" d="
+      M100 8
+      C108 32 124 44 138 60
+      C156 80 166 102 166 126
+      C166 162 137 188 100 188
+      C63 188 34 162 34 126
+      C34 104 44 84 60 70
+      C58 84 62 96 72 104
+      C66 84 74 64 90 50
+      C100 42 102 28 100 8 Z"/>
+    <path fill="#FFFFFF" d="M64 110 L94 140 L142 78 L156 92 L94 168 L50 124 Z"/>
+    <path fill="#0F1626" d="M70 112 L94 136 L138 80 L150 92 L94 158 L58 122 Z"/>
+  </g>
+  <text x="200" y="400"
+        text-anchor="middle"
+        font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+        font-weight="800"
+        font-size="92"
+        letter-spacing="-2"
+        fill="#0F1626">Roastpilot</text>
+</svg>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getPinned, listFeed } from "@/lib/store";
 import { VerdictBadge } from "@/components/VerdictBadge";
 import { VerdictGlossary } from "@/components/VerdictGlossary";
+import { Logo } from "@/components/logo";
 import type { Verdict } from "@/lib/verdicts";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ export default async function Home() {
   return (
     <div className="mx-auto max-w-5xl px-6 pt-10 pb-20">
       <section className="mb-10">
+        <Logo variant="mark" height={64} className="mb-5" priority />
         <p className="text-xs uppercase tracking-[0.22em] text-accent font-semibold mb-3">
           Roast as a Service
         </p>
