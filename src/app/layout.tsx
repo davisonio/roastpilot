@@ -1,39 +1,63 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Instrument_Sans } from "next/font/google";
-import { WalletProviders } from "@/components/wallet-providers";
+import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
+import { DisplayNameWidget } from "@/components/DisplayNameWidget";
 
-const display = Cormorant_Garamond({
-  variable: "--font-display",
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
-  weight: ["500", "600"],
-  style: ["italic"],
-  display: "swap",
 });
 
-const sans = Instrument_Sans({
-  variable: "--font-sans",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
-  weight: ["400", "500"],
-  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Roastpilot — verified verdicts on whatever you did",
+  title: "Roastpilot — Am I The Asshole, judged by AI and humans",
   description:
-    "Submit a situation. Get a written opinion. Verified humans deliver the verdict.",
+    "Post your dilemma. Claude Opus delivers a verdict. Real humans pile on. Trustpilot, but for being told you suck.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html
       lang="en"
-      className={`${display.variable} ${sans.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-paper text-ink">
-        <WalletProviders>{children}</WalletProviders>
+      <body className="min-h-full flex flex-col">
+        <header className="border-b border-rule bg-paper/70 backdrop-blur sticky top-0 z-20">
+          <div className="mx-auto max-w-5xl px-6 h-14 flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2 font-bold text-ink">
+              <span className="text-accent text-xl leading-none">⚖︎</span>
+              <span className="tracking-tight">Roastpilot</span>
+              <span className="text-[11px] uppercase tracking-[0.18em] text-ink-soft pl-2 border-l border-rule ml-2">
+                AITA, but settled
+              </span>
+            </Link>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/posts/new"
+                className="text-sm font-medium px-3 py-1.5 rounded-full bg-ink text-paper hover:bg-accent-strong transition-colors"
+              >
+                Post a dilemma
+              </Link>
+              <DisplayNameWidget />
+            </div>
+          </div>
+        </header>
+        <main className="flex-1">{children}</main>
+        <footer className="border-t border-rule mt-16">
+          <div className="mx-auto max-w-5xl px-6 py-6 text-xs text-ink-soft flex justify-between">
+            <span>Roastpilot — Roast as a Service.</span>
+            <span>Verdicts by Claude Opus + the court of public opinion.</span>
+          </div>
+        </footer>
       </body>
     </html>
   );
