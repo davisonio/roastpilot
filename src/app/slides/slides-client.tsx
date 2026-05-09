@@ -4,13 +4,16 @@ import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
 import {
+  ArrowLeft,
   ArrowRight,
   BadgeCheck,
   ChevronLeft,
   ChevronRight,
   Coins,
   Database,
+  Flame,
   Gauge,
   LockKeyhole,
   MessageSquareQuote,
@@ -21,45 +24,35 @@ import {
   Users,
 } from 'lucide-react';
 
-// ── Duplo palette ──────────────────────────────────────────────────────────
-const DUPLO = ['#E3000B', '#0055B8', '#FFCB00', '#00A650'] as const;
-type DuploColor = (typeof DUPLO)[number];
-
-const SLIDE_COLORS: DuploColor[] = [
-  '#E3000B', // cover
-  '#0055B8', // problem
-  '#FFCB00', // insight
-  '#00A650', // loop
-  '#E3000B', // experience
-  '#0055B8', // trust
-  '#FFCB00', // architecture
-  '#00A650', // demo
-  '#E3000B', // roadmap
-  '#0055B8', // close
-];
-
-function textOn(color: DuploColor) {
-  return color === '#FFCB00' ? '#1A1A1A' : '#FFFFFF';
-}
-
-// ── Data ───────────────────────────────────────────────────────────────────
 type SlideId =
-  | 'cover' | 'problem' | 'insight' | 'loop' | 'experience'
-  | 'trust' | 'architecture' | 'demo' | 'roadmap' | 'close';
+  | 'cover'
+  | 'problem'
+  | 'insight'
+  | 'loop'
+  | 'experience'
+  | 'trust'
+  | 'architecture'
+  | 'demo'
+  | 'roadmap'
+  | 'close';
 
-type SlideMeta = { id: SlideId; kicker: string; title: string };
+type SlideMeta = {
+  id: SlideId;
+  kicker: string;
+  title: string;
+};
 
 const slideMeta: SlideMeta[] = [
-  { id: 'cover',        kicker: 'Roast',            title: 'Get roasted. Honestly.' },
-  { id: 'problem',      kicker: 'The gap',           title: 'AI is bad at honest feedback.' },
-  { id: 'insight',      kicker: 'Core insight',      title: 'Accountable entry changes the room.' },
-  { id: 'loop',         kicker: 'Product loop',      title: 'Roast turns vulnerable questions into ranked signal.' },
-  { id: 'experience',   kicker: 'Experience',        title: 'The demo already has the full ritual.' },
-  { id: 'trust',        kicker: 'Trust model',       title: 'The audit page shows what crossed the boundary.' },
-  { id: 'architecture', kicker: 'Build',             title: 'Simple primitives make it shippable.' },
-  { id: 'demo',         kicker: 'Live demo',         title: 'A judge can understand it in 90 seconds.' },
-  { id: 'roadmap',      kicker: 'Next 48 hours',     title: 'The prototype becomes a real room.' },
-  { id: 'close',        kicker: 'Close',             title: 'Social honesty needs new rules.' },
+  { id: 'cover', kicker: 'Roast', title: 'Get roasted. Honestly.' },
+  { id: 'problem', kicker: 'The gap', title: 'AI is bad at honest feedback.' },
+  { id: 'insight', kicker: 'Core insight', title: 'Accountable entry changes the room.' },
+  { id: 'loop', kicker: 'Product loop', title: 'Roast turns vulnerable questions into ranked signal.' },
+  { id: 'experience', kicker: 'Experience', title: 'The demo already has the full ritual.' },
+  { id: 'trust', kicker: 'Trust model', title: 'The audit page shows what crossed the boundary.' },
+  { id: 'architecture', kicker: 'Build', title: 'Simple primitives make it shippable.' },
+  { id: 'demo', kicker: 'Live demo', title: 'A judge can understand it in 90 seconds.' },
+  { id: 'roadmap', kicker: 'Next 48 hours', title: 'The prototype becomes a real room.' },
+  { id: 'close', kicker: 'Close', title: 'Social honesty needs new rules.' },
 ];
 
 const stats = [
@@ -70,9 +63,21 @@ const stats = [
 ];
 
 const principles: { label: string; text: string; icon: LucideIcon }[] = [
-  { label: 'Verified entry', text: 'Every member passes a presence check before joining the room.', icon: ShieldCheck },
-  { label: 'Anonymous inside', text: 'Two-word handles keep feedback honest without exposing identity.', icon: LockKeyhole },
-  { label: 'Paid seriousness', text: 'A small economic gate filters for people who actually want the truth.', icon: Coins },
+  {
+    label: 'Verified entry',
+    text: 'Every member passes a presence check before joining the room.',
+    icon: ShieldCheck,
+  },
+  {
+    label: 'Anonymous inside',
+    text: 'Two-word handles keep feedback honest without exposing identity.',
+    icon: LockKeyhole,
+  },
+  {
+    label: 'Paid seriousness',
+    text: 'A small economic gate filters for people who actually want the truth.',
+    icon: Coins,
+  },
 ];
 
 const productLoop = [
@@ -112,110 +117,56 @@ const roadmap = [
   'Moderation tools that protect the room without deanonymizing members',
 ];
 
-// ── Duplo primitives ───────────────────────────────────────────────────────
-function Kicker({ children, color }: { children: ReactNode; color: DuploColor }) {
-  return (
-    <span
-      className="inline-block rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.22em]"
-      style={{ background: color, color: textOn(color) }}
-    >
-      {children}
-    </span>
-  );
+function clampSlide(index: number) {
+  return Math.max(0, Math.min(slideMeta.length - 1, index));
 }
 
-function ColorBlock({ color, children, className = '' }: {
-  color: DuploColor;
-  children: ReactNode;
-  className?: string;
-}) {
+function Kicker({ children }: { children: ReactNode }) {
   return (
-    <div
-      className={`rounded-2xl p-5 ${className}`}
-      style={{ background: color, color: textOn(color) }}
-    >
-      {children}
+    <div className="flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-ember-2">
+      <span className="h-px w-10 bg-ember-1" />
+      <span>{children}</span>
     </div>
   );
 }
 
-function Card({ children, accent, className = '' }: {
-  children: ReactNode;
-  accent?: DuploColor;
-  className?: string;
-}) {
+function IconBadge({ icon: Icon }: { icon: LucideIcon }) {
   return (
-    <div
-      className={`rounded-2xl bg-white p-5 ${className}`}
-      style={{
-        border: `2.5px solid ${accent ?? '#E8E8E8'}`,
-        boxShadow: accent ? `4px 4px 0 ${accent}33` : '4px 4px 0 #E8E8E8',
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function IconCircle({ icon: Icon, color }: { icon: LucideIcon; color: DuploColor }) {
-  return (
-    <div
-      className="flex size-12 shrink-0 items-center justify-center rounded-xl"
-      style={{ background: color, color: textOn(color) }}
-    >
+    <div className="flex size-12 shrink-0 items-center justify-center rounded-md border border-ember-1/35 bg-ember-1/10 text-ember-2 shadow-[0_0_32px_rgba(255,107,26,0.16)]">
       <Icon className="size-6" />
     </div>
   );
 }
 
-function NumBadge({ n, color }: { n: number; color: DuploColor }) {
-  return (
-    <div
-      className="flex size-12 shrink-0 items-center justify-center rounded-xl text-2xl font-black"
-      style={{ background: color, color: textOn(color) }}
-    >
-      {n}
-    </div>
-  );
-}
-
-// ── Stage ──────────────────────────────────────────────────────────────────
-function Stage({ meta, children, color, align = 'split' }: {
+function Stage({
+  meta,
+  children,
+  align = 'split',
+}: {
   meta: SlideMeta;
   children: ReactNode;
-  color: DuploColor;
   align?: 'split' | 'center';
 }) {
   return (
-    <article className="relative h-full w-full overflow-auto px-5 pb-28 pt-20 sm:px-10 lg:px-14"
-      style={{ background: '#F7F7F7' }}
+    <article
+      key={meta.id}
+      className="relative grid h-full w-full animate-fade-in-up overflow-hidden px-5 pb-24 pt-20 sm:px-8 lg:px-12"
     >
-      {/* Dot grid */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage: 'radial-gradient(circle, #0000001a 1px, transparent 1px)',
-          backgroundSize: '28px 28px',
-        }}
-      />
-      {/* Colored corner accent */}
-      <div
-        className="pointer-events-none absolute right-0 top-0 h-2 w-40 rounded-bl-2xl"
-        style={{ background: color }}
-      />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(255,107,26,0.20),transparent_30%),linear-gradient(250deg,rgba(255,217,110,0.12),transparent_34%),repeating-linear-gradient(90deg,rgba(244,237,228,0.035)_0_1px,transparent_1px_80px)]" />
+      <div className="pointer-events-none absolute -right-16 top-16 h-40 w-[38rem] rotate-[-18deg] bg-ember-1/15 [clip-path:polygon(0_0,100%_16%,92%_100%,8%_82%)]" />
+      <div className="pointer-events-none absolute -bottom-24 left-0 h-44 w-[44rem] rotate-[8deg] bg-cool/20 [clip-path:polygon(6%_0,100%_22%,86%_100%,0_74%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-14 h-px bg-gradient-to-r from-transparent via-ember-1/70 to-transparent" />
 
       <div
         className={
           align === 'center'
-            ? 'relative mx-auto flex max-w-5xl flex-col items-center justify-center text-center'
-            : 'relative mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-start pt-4'
+            ? 'relative mx-auto flex max-w-6xl flex-col items-center justify-center text-center'
+            : 'relative mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center'
         }
       >
-        <div className={align === 'center' ? 'max-w-4xl' : ''}>
-          <Kicker color={color}>{meta.kicker}</Kicker>
-          <h1
-            className="mt-5 font-display text-4xl font-black leading-[0.92] text-[#1A1A1A] sm:text-6xl lg:text-[5.5rem]"
-          >
+        <div className={align === 'center' ? 'max-w-5xl' : ''}>
+          <Kicker>{meta.kicker}</Kicker>
+          <h1 className="mt-5 font-display text-4xl font-semibold leading-[0.92] text-foreground sm:text-6xl lg:text-8xl">
             {meta.title}
           </h1>
         </div>
@@ -227,90 +178,80 @@ function Stage({ meta, children, color, align = 'split' }: {
   );
 }
 
-// ── Slide components ───────────────────────────────────────────────────────
-function CoverSlide({ meta, color }: { meta: SlideMeta; color: DuploColor }) {
+function CoverSlide({ meta }: { meta: SlideMeta }) {
   return (
-    <Stage meta={meta} color={color} align="center">
-      <p className="mx-auto max-w-3xl text-xl leading-8 text-[#444] sm:text-2xl sm:leading-9">
+    <Stage meta={meta} align="center">
+      <p className="mx-auto max-w-3xl text-xl leading-8 text-muted-foreground sm:text-2xl sm:leading-9">
         A members-only feedback room where identity stays outside, candor stays inside, and the best truth earns heat.
       </p>
-      <div className="mt-10 grid gap-3 overflow-hidden rounded-2xl sm:grid-cols-4">
-        {stats.map((stat, i) => (
-          <ColorBlock key={stat.label} color={DUPLO[i % 4]} className="text-left">
-            <div className="text-5xl font-black">{stat.value}</div>
-            <div className="mt-2 text-xs font-bold uppercase tracking-[0.18em] opacity-80">{stat.label}</div>
-          </ColorBlock>
+      <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-4">
+        {stats.map((stat) => (
+          <div key={stat.label} className="bg-surface px-6 py-6 text-left">
+            <div className="font-display text-5xl font-semibold text-ember-3">{stat.value}</div>
+            <div className="mt-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">{stat.label}</div>
+          </div>
         ))}
       </div>
     </Stage>
   );
 }
 
-function ProblemSlide({ meta, color }: { meta: SlideMeta; color: DuploColor }) {
+function ProblemSlide({ meta }: { meta: SlideMeta }) {
   return (
-    <Stage meta={meta} color={color}>
-      <div className="space-y-5">
-        <p className="text-xl leading-8 text-[#444]">
+    <Stage meta={meta}>
+      <div className="space-y-7">
+        <p className="text-xl leading-8 text-muted-foreground">
           Public identity makes people perform. Pure anonymity attracts low-effort abuse. Builders are stuck between polite lies and chaotic comment sections.
         </p>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {(['Flattery', 'Fear', 'Noise'] as const).map((word, i) => (
-            <Card key={word} accent={DUPLO[i % 4]}>
-              <div className="text-3xl font-black text-[#1A1A1A]">{word}</div>
-              <div className="mt-4 h-3 overflow-hidden rounded-full bg-[#E8E8E8]">
+        <div className="grid gap-4 sm:grid-cols-3">
+          {['Flattery', 'Fear', 'Noise'].map((word, index) => (
+            <div key={word} className="relative overflow-hidden rounded-lg border border-border bg-surface p-5">
+              <div className="font-display text-3xl text-foreground">{word}</div>
+              <div className="mt-5 h-2 rounded-full bg-muted">
                 <div
-                  className="h-3 rounded-full"
-                  style={{ width: `${82 - i * 18}%`, background: DUPLO[i % 4] }}
+                  className="h-2 rounded-full bg-ember-1"
+                  style={{ width: `${82 - index * 18}%` }}
                 />
               </div>
-            </Card>
+            </div>
           ))}
         </div>
-        <Card accent={color}>
-          <p className="text-xl font-bold text-[#1A1A1A]">
-            The win: candor with accountability, without social risk.
-          </p>
-        </Card>
+        <div className="border-t border-ember-1/30 pt-6 text-2xl font-semibold leading-8 text-foreground">
+          The win: candor with accountability, without social risk.
+        </div>
       </div>
     </Stage>
   );
 }
 
-function InsightSlide({ meta, color }: { meta: SlideMeta; color: DuploColor }) {
+function InsightSlide({ meta }: { meta: SlideMeta }) {
   return (
-    <Stage meta={meta} color={color}>
-      <div className="grid gap-3">
-        {principles.map(({ label, text, icon }, i) => (
-          <Card key={label} accent={DUPLO[i % 4]}>
-            <div className="flex gap-4">
-              <IconCircle icon={icon} color={DUPLO[i % 4]} />
-              <div>
-                <h2 className="text-2xl font-black text-[#1A1A1A]">{label}</h2>
-                <p className="mt-1 text-lg leading-7 text-[#555]">{text}</p>
-              </div>
+    <Stage meta={meta}>
+      <div className="grid gap-4">
+        {principles.map(({ label, text, icon }) => (
+          <div key={label} className="flex gap-5 rounded-lg border border-border bg-surface/90 p-5">
+            <IconBadge icon={icon} />
+            <div>
+              <h2 className="font-display text-3xl font-semibold text-foreground">{label}</h2>
+              <p className="mt-2 text-lg leading-7 text-muted-foreground">{text}</p>
             </div>
-          </Card>
+          </div>
         ))}
       </div>
     </Stage>
   );
 }
 
-function LoopSlide({ meta, color }: { meta: SlideMeta; color: DuploColor }) {
+function LoopSlide({ meta }: { meta: SlideMeta }) {
   return (
-    <Stage meta={meta} color={color}>
-      <ol className="grid gap-3">
-        {productLoop.map((step, i) => (
-          <li key={step} className="flex items-center gap-0 overflow-hidden rounded-2xl"
-            style={{ border: `2.5px solid ${DUPLO[i % 4]}`, boxShadow: `4px 4px 0 ${DUPLO[i % 4]}33` }}
-          >
-            <div
-              className="flex w-16 shrink-0 items-center justify-center self-stretch"
-              style={{ background: DUPLO[i % 4], color: textOn(DUPLO[i % 4]) }}
-            >
-              <span className="text-4xl font-black">{i + 1}</span>
+    <Stage meta={meta}>
+      <ol className="grid gap-4">
+        {productLoop.map((step, index) => (
+          <li key={step} className="grid grid-cols-[4rem_1fr] items-stretch overflow-hidden rounded-lg border border-border bg-surface">
+            <div className="flex items-center justify-center bg-ember-1 text-primary-foreground">
+              <span className="font-display text-4xl font-semibold">{index + 1}</span>
             </div>
-            <p className="bg-white px-6 py-5 text-xl leading-8 text-[#333]">{step}</p>
+            <p className="px-6 py-5 text-xl leading-8 text-muted-foreground">{step}</p>
           </li>
         ))}
       </ol>
@@ -318,74 +259,74 @@ function LoopSlide({ meta, color }: { meta: SlideMeta; color: DuploColor }) {
   );
 }
 
-function ExperienceSlide({ meta, color }: { meta: SlideMeta; color: DuploColor }) {
+function ExperienceSlide({ meta }: { meta: SlideMeta }) {
   return (
-    <Stage meta={meta} color={color}>
+    <Stage meta={meta}>
       <div className="grid gap-3 sm:grid-cols-2">
-        {routes.map((item, i) => (
-          <Card key={item.route} accent={DUPLO[i % 4]}>
-            <div className="font-mono text-sm font-bold" style={{ color: DUPLO[i % 4] }}>{item.route}</div>
-            <div className="mt-3 text-3xl font-black text-[#1A1A1A]">{item.label}</div>
-            <div className="mt-1 text-base text-[#555]">{item.detail}</div>
-          </Card>
+        {routes.map((item) => (
+          <div key={item.route} className="rounded-lg border border-border bg-surface p-5">
+            <div className="font-mono text-sm text-ember-2">{item.route}</div>
+            <div className="mt-4 font-display text-3xl font-semibold text-foreground">{item.label}</div>
+            <div className="mt-2 text-base leading-6 text-muted-foreground">{item.detail}</div>
+          </div>
         ))}
       </div>
     </Stage>
   );
 }
 
-function TrustSlide({ meta, color }: { meta: SlideMeta; color: DuploColor }) {
+function TrustSlide({ meta }: { meta: SlideMeta }) {
   return (
-    <Stage meta={meta} color={color}>
-      <div className="grid gap-4 lg:grid-cols-[1fr_0.82fr]">
-        <Card accent={color}>
-          <div className="mb-5 flex items-center gap-3">
-            <IconCircle icon={BadgeCheck} color={color} />
-            <span className="text-xl font-black text-[#1A1A1A]">Public proof, private identity</span>
+    <Stage meta={meta}>
+      <div className="grid gap-5 lg:grid-cols-[1fr_0.82fr]">
+        <div className="rounded-lg border border-border bg-surface p-6">
+          <div className="mb-6 flex items-center gap-4 text-ember-2">
+            <IconBadge icon={BadgeCheck} />
+            <span className="text-xl font-semibold text-foreground">Public proof, private identity</span>
           </div>
-          <div className="space-y-3 text-lg leading-7 text-[#555]">
+          <div className="space-y-4 text-xl leading-8 text-muted-foreground">
             <p>Actions become attestations: post, roast, point.</p>
             <p>Audit records store confidence, scope, and attestation hash.</p>
             <p>Identity and message context stay separate from the public trail.</p>
           </div>
-        </Card>
-        <ColorBlock color={color} className="self-start">
-          <div className="text-xs font-black uppercase tracking-[0.2em] opacity-80">designed for Solana</div>
-          <div className="mt-5 space-y-3 font-mono text-sm" style={{ color: textOn(color) }}>
-            <div className="opacity-90">0x4f3a...8c21 / post / 0.94</div>
-            <div className="opacity-90">0x7b2d...4e55 / roast / 0.91</div>
-            <div className="opacity-90">0x1c9f...6a03 / point / 0.97</div>
+        </div>
+        <div className="rounded-lg border border-ember-1/35 bg-ember-1/10 p-6">
+          <div className="font-mono text-sm uppercase tracking-[0.2em] text-ember-3">designed for Solana</div>
+          <div className="mt-6 space-y-4 font-mono text-sm text-foreground">
+            <div>0x4f3a...8c21 / post / 0.94</div>
+            <div>0x7b2d...4e55 / roast / 0.91</div>
+            <div>0x1c9f...6a03 / point / 0.97</div>
           </div>
-        </ColorBlock>
+        </div>
       </div>
     </Stage>
   );
 }
 
-function ArchitectureSlide({ meta, color }: { meta: SlideMeta; color: DuploColor }) {
+function ArchitectureSlide({ meta }: { meta: SlideMeta }) {
   return (
-    <Stage meta={meta} color={color}>
+    <Stage meta={meta}>
       <div className="grid gap-4">
-        <div className="grid gap-3 sm:grid-cols-4">
-          {architecture.map((table, i) => (
-            <Card key={table.name} accent={DUPLO[i % 4]}>
-              <Database className="mb-3 size-6" style={{ color: DUPLO[i % 4] }} />
-              <div className="font-mono text-sm font-bold" style={{ color: DUPLO[i % 4] }}>{table.name}</div>
-              <p className="mt-2 text-base text-[#555]">{table.copy}</p>
-            </Card>
+        <div className="grid gap-4 sm:grid-cols-4">
+          {architecture.map((table) => (
+            <div key={table.name} className="rounded-lg border border-border bg-surface p-5">
+              <Database className="mb-4 size-7 text-ember-2" />
+              <div className="font-mono text-sm text-ember-3">{table.name}</div>
+              <p className="mt-3 text-lg leading-6 text-muted-foreground">{table.copy}</p>
+            </div>
           ))}
         </div>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 rounded-lg border border-border bg-background/70 p-5 sm:grid-cols-3">
           {[
             { icon: Gauge, label: 'Heat engine', copy: '0, warm, ember, hot, peak' },
             { icon: Users, label: 'RLS ready', copy: 'Public reads, controlled writes' },
             { icon: Trophy, label: 'Ranking views', copy: 'Leaderboard and roast counts' },
-          ].map(({ icon: Icon, label, copy }, i) => (
-            <Card key={label} accent={DUPLO[(i + 1) % 4]}>
-              <Icon className="mb-3 size-6" style={{ color: DUPLO[(i + 1) % 4] }} />
-              <div className="text-2xl font-black text-[#1A1A1A]">{label}</div>
-              <p className="mt-1 text-sm text-[#555]">{copy}</p>
-            </Card>
+          ].map(({ icon: Icon, label, copy }) => (
+            <div key={label}>
+              <Icon className="mb-3 size-6 text-ember-2" />
+              <div className="font-display text-2xl text-foreground">{label}</div>
+              <p className="mt-1 text-sm text-muted-foreground">{copy}</p>
+            </div>
           ))}
         </div>
       </div>
@@ -393,38 +334,17 @@ function ArchitectureSlide({ meta, color }: { meta: SlideMeta; color: DuploColor
   );
 }
 
-function DemoSlide({ meta, color }: { meta: SlideMeta; color: DuploColor }) {
+function DemoSlide({ meta }: { meta: SlideMeta }) {
   return (
-    <Stage meta={meta} color={color}>
-      <div className="space-y-3">
-        {demoPath.map((item, i) => (
-          <Card key={item} accent={DUPLO[i % 4]}>
-            <div className="flex items-start gap-4">
-              <NumBadge n={i + 1} color={DUPLO[i % 4]} />
-              <div>
-                <div className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#888]">step {i + 1}</div>
-                <p className="mt-1 text-xl leading-7 text-[#1A1A1A]">{item}</p>
-              </div>
+    <Stage meta={meta}>
+      <div className="space-y-4">
+        {demoPath.map((item, index) => (
+          <div key={item} className="flex items-start gap-4 rounded-lg border border-border bg-surface p-5">
+            <Route className="mt-1 size-6 shrink-0 text-ember-2" />
+            <div>
+              <div className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">step {index + 1}</div>
+              <p className="mt-1 text-xl leading-8 text-foreground">{item}</p>
             </div>
-          </Card>
-        ))}
-      </div>
-    </Stage>
-  );
-}
-
-function RoadmapSlide({ meta, color }: { meta: SlideMeta; color: DuploColor }) {
-  return (
-    <Stage meta={meta} color={color}>
-      <div className="space-y-3">
-        {roadmap.map((item, i) => (
-          <div
-            key={item}
-            className="flex items-center gap-4 rounded-2xl bg-white px-6 py-5"
-            style={{ border: `2.5px solid ${DUPLO[i % 4]}`, boxShadow: `4px 4px 0 ${DUPLO[i % 4]}33` }}
-          >
-            <Sparkles className="size-6 shrink-0" style={{ color: DUPLO[i % 4] }} />
-            <p className="text-xl leading-7 text-[#333]">{item}</p>
           </div>
         ))}
       </div>
@@ -432,24 +352,39 @@ function RoadmapSlide({ meta, color }: { meta: SlideMeta; color: DuploColor }) {
   );
 }
 
-function CloseSlide({ meta, color }: { meta: SlideMeta; color: DuploColor }) {
+function RoadmapSlide({ meta }: { meta: SlideMeta }) {
   return (
-    <Stage meta={meta} color={color} align="center">
-      <MessageSquareQuote className="mx-auto mb-6 size-14" style={{ color }} />
-      <p className="mx-auto max-w-3xl text-2xl leading-9 text-[#444]">
+    <Stage meta={meta}>
+      <div className="space-y-5">
+        {roadmap.map((item) => (
+          <div key={item} className="flex items-center gap-4 border-b border-border pb-5 last:border-b-0">
+            <Sparkles className="size-6 shrink-0 text-ember-3" />
+            <p className="text-2xl leading-8 text-muted-foreground">{item}</p>
+          </div>
+        ))}
+      </div>
+    </Stage>
+  );
+}
+
+function CloseSlide({ meta }: { meta: SlideMeta }) {
+  return (
+    <Stage meta={meta} align="center">
+      <MessageSquareQuote className="mx-auto mb-8 size-14 text-ember-2" />
+      <p className="mx-auto max-w-3xl text-2xl leading-9 text-muted-foreground">
         Roast gives people a room where the truth is easier to say, harder to fake, and valuable enough to remember.
       </p>
       <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Link
           href="/"
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-full px-7 text-base font-black transition-opacity hover:opacity-80"
-          style={{ background: color, color: textOn(color) }}
+          className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-ember-1 px-6 font-semibold text-primary-foreground transition-colors hover:bg-ember-2"
         >
-          Demo the room <ArrowRight className="size-4" />
+          Demo the room
+          <ArrowRight className="size-4" />
         </Link>
         <Link
           href="/video"
-          className="inline-flex h-12 items-center justify-center rounded-full border-2 border-[#1A1A1A] px-7 text-base font-black text-[#1A1A1A] transition-opacity hover:opacity-70"
+          className="inline-flex h-12 items-center justify-center rounded-md border border-border px-6 font-semibold text-foreground transition-colors hover:bg-surface"
         >
           Watch demo
         </Link>
@@ -458,87 +393,121 @@ function CloseSlide({ meta, color }: { meta: SlideMeta; color: DuploColor }) {
   );
 }
 
-// ── Shell ──────────────────────────────────────────────────────────────────
-function clampSlide(index: number) {
-  return Math.max(0, Math.min(slideMeta.length - 1, index));
-}
-
 export function SlidesClient() {
   const [activeIndex, setActiveIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
   const activeMeta = slideMeta[activeIndex];
-  const color = SLIDE_COLORS[activeIndex];
 
-  const goTo = useCallback((index: number) => setActiveIndex(clampSlide(index)), []);
+  const goTo = useCallback((index: number) => {
+    setActiveIndex(clampSlide(index));
+  }, []);
+
   const goNext = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo]);
   const goPrev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo]);
 
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); setActiveIndex(i => clampSlide(i + 1)); }
-      if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); setActiveIndex(i => clampSlide(i - 1)); }
-      if (e.key === 'Home') { e.preventDefault(); setActiveIndex(0); }
-      if (e.key === 'End') { e.preventDefault(); setActiveIndex(slideMeta.length - 1); }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') {
+        event.preventDefault();
+        setActiveIndex((index) => clampSlide(index + 1));
+      }
+
+      if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+        event.preventDefault();
+        setActiveIndex((index) => clampSlide(index - 1));
+      }
+
+      if (event.key === 'Home') {
+        event.preventDefault();
+        setActiveIndex(0);
+      }
+
+      if (event.key === 'End') {
+        event.preventDefault();
+        setActiveIndex(slideMeta.length - 1);
+      }
     };
+
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio) return;
+
+    if (!audio) {
+      return;
+    }
+
     audio.volume = 0.72;
-    const play = () => audio.play().catch(() => {});
-    play();
-    window.addEventListener('pointerdown', play, { once: true });
-    window.addEventListener('keydown', play, { once: true });
-    return () => { window.removeEventListener('pointerdown', play); window.removeEventListener('keydown', play); };
+
+    const playAudio = () => {
+      audio.play().catch(() => {
+        // Browsers can block audible autoplay until the first user gesture.
+      });
+    };
+
+    playAudio();
+    window.addEventListener('pointerdown', playAudio, { once: true });
+    window.addEventListener('keydown', playAudio, { once: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', playAudio);
+      window.removeEventListener('keydown', playAudio);
+    };
   }, []);
 
   const activeSlide = useMemo(() => {
-    const props = { meta: activeMeta, color };
     switch (activeMeta.id) {
-      case 'cover':        return <CoverSlide {...props} />;
-      case 'problem':      return <ProblemSlide {...props} />;
-      case 'insight':      return <InsightSlide {...props} />;
-      case 'loop':         return <LoopSlide {...props} />;
-      case 'experience':   return <ExperienceSlide {...props} />;
-      case 'trust':        return <TrustSlide {...props} />;
-      case 'architecture': return <ArchitectureSlide {...props} />;
-      case 'demo':         return <DemoSlide {...props} />;
-      case 'roadmap':      return <RoadmapSlide {...props} />;
-      case 'close':        return <CloseSlide {...props} />;
+      case 'cover':
+        return <CoverSlide meta={activeMeta} />;
+      case 'problem':
+        return <ProblemSlide meta={activeMeta} />;
+      case 'insight':
+        return <InsightSlide meta={activeMeta} />;
+      case 'loop':
+        return <LoopSlide meta={activeMeta} />;
+      case 'experience':
+        return <ExperienceSlide meta={activeMeta} />;
+      case 'trust':
+        return <TrustSlide meta={activeMeta} />;
+      case 'architecture':
+        return <ArchitectureSlide meta={activeMeta} />;
+      case 'demo':
+        return <DemoSlide meta={activeMeta} />;
+      case 'roadmap':
+        return <RoadmapSlide meta={activeMeta} />;
+      case 'close':
+        return <CloseSlide meta={activeMeta} />;
     }
-  }, [activeMeta, color]);
+  }, [activeMeta]);
 
   return (
-    <main className="relative h-screen overflow-hidden" style={{ background: '#F7F7F7', color: '#1A1A1A' }}>
-      {/* Nav */}
-      <nav
-        className="fixed left-0 right-0 top-0 z-50 bg-white"
-        style={{ borderBottom: `4px solid ${color}` }}
-      >
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-5 sm:px-8">
-          <Link href="/" className="flex items-center gap-2 text-lg font-black text-[#1A1A1A]">
-            Roastpilot
+    <main className="relative h-screen overflow-hidden bg-background text-foreground">
+      <nav className="fixed left-0 right-0 top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur-xl">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-12">
+          <Link href="/" className="flex items-center gap-2 font-display text-lg font-semibold">
+            <Flame className="size-5 text-ember-1" />
+            Roast
           </Link>
-          <div className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#888]">
+          <div className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
             {String(activeIndex + 1).padStart(2, '0')} / {String(slideMeta.length).padStart(2, '0')}
           </div>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-black transition-opacity hover:opacity-80"
-            style={{ background: color, color: textOn(color) }}
-          >
-            Open app <ArrowRight className="size-3.5" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 rounded-md bg-ember-1 px-3 py-1.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-ember-2"
+            >
+              Open app
+              <ArrowRight className="size-4" />
+            </Link>
+          </div>
         </div>
       </nav>
 
-      {/* Slide */}
       {activeSlide}
 
-      {/* Audio */}
       <audio
         ref={audioRef}
         src="/burnbabyburnroastpilot.mp3"
@@ -546,52 +515,51 @@ export function SlidesClient() {
         autoPlay
         preload="auto"
         aria-label="Burn Baby Burn soundtrack"
-        className="fixed bottom-6 right-5 z-50 h-9 w-56 max-w-[calc(100vw-2.5rem)] rounded-xl sm:right-8"
-        style={{ border: `2px solid ${color}` }}
+        className="fixed bottom-6 right-5 z-50 h-10 w-[16rem] max-w-[calc(100vw-2.5rem)] rounded-md border border-border bg-background/85 backdrop-blur-xl sm:right-8"
       />
 
-      {/* Pagination */}
-      <div
-        className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-2xl bg-white px-3 py-2"
-        style={{ border: `2.5px solid #E8E8E8`, boxShadow: '4px 4px 0 #E8E8E8' }}
-      >
+      <div className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-lg border border-border bg-background/85 px-3 py-2 backdrop-blur-xl">
         <button
           type="button"
           onClick={goPrev}
           disabled={activeIndex === 0}
-          className="flex size-8 items-center justify-center rounded-xl text-[#888] transition-colors hover:bg-[#F0F0F0] hover:text-[#1A1A1A] disabled:pointer-events-none disabled:opacity-30"
+          aria-label="Previous slide"
+          className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-surface hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
         >
           <ChevronLeft className="size-5" />
         </button>
 
         <div className="flex items-center gap-1.5">
-          {slideMeta.map((slide, index) => {
-            const c = SLIDE_COLORS[index];
-            const active = index === activeIndex;
-            return (
-              <button
-                key={slide.id}
-                type="button"
-                onClick={() => goTo(index)}
-                aria-label={`Go to ${slide.kicker}`}
-                className="h-2.5 rounded-full transition-all"
-                style={{
-                  width: active ? 28 : 10,
-                  background: active ? c : '#D4D4D4',
-                }}
-              />
-            );
-          })}
+          {slideMeta.map((slide, index) => (
+            <button
+              key={slide.id}
+              type="button"
+              onClick={() => goTo(index)}
+              aria-label={`Go to ${slide.kicker}`}
+              className={`h-2 rounded-full transition-all ${
+                index === activeIndex
+                  ? 'w-8 bg-ember-1 shadow-[0_0_16px_rgba(255,107,26,0.6)]'
+                  : 'w-2 bg-muted hover:bg-muted-foreground'
+              }`}
+            />
+          ))}
         </div>
 
         <button
           type="button"
           onClick={goNext}
           disabled={activeIndex === slideMeta.length - 1}
-          className="flex size-8 items-center justify-center rounded-xl text-[#888] transition-colors hover:bg-[#F0F0F0] hover:text-[#1A1A1A] disabled:pointer-events-none disabled:opacity-30"
+          aria-label="Next slide"
+          className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-surface hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
         >
           <ChevronRight className="size-5" />
         </button>
+      </div>
+
+      <div className="fixed bottom-6 left-6 z-40 hidden items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground md:flex">
+        <ArrowLeft className="size-4" />
+        <span>{activeMeta.kicker}</span>
+        <ArrowRight className="size-4" />
       </div>
     </main>
   );
