@@ -21,8 +21,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="min-h-full flex flex-col bg-background text-ink">
         <header className="sticky top-0 z-20 border-b border-rule bg-background/80 backdrop-blur-md">
           <div className="mx-auto max-w-5xl px-6 h-14 flex items-center justify-between gap-4">
-            <Link href="/" className="flex items-center gap-2 group shrink-0">
-              <Logo variant="horizontal" height={36} className="transition-opacity group-hover:opacity-80" />
+            <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+              <Logo variant="mark" height={32} className="transition-opacity group-hover:opacity-80" />
+              <span className="font-display font-semibold text-xl tracking-tight text-ink group-hover:text-accent transition-colors">
+                Roastpilot
+              </span>
             </Link>
             <nav className="flex items-center gap-1 text-sm text-ink-soft">
               <Link href="/" className="px-3 py-1.5 rounded-full hover:bg-paper-2 hover:text-ink transition-colors">Feed</Link>

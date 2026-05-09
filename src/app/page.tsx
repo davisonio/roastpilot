@@ -26,13 +26,13 @@ export default async function Home() {
         <p className="text-xs uppercase tracking-[0.22em] text-accent font-semibold mb-3">
           Roast as a Service
         </p>
-        <h1 className="font-display font-bold text-ink leading-[1.05] tracking-tight text-[44px] sm:text-[56px] max-w-3xl">
-          Tell us what you did.<br />
-          <span className="text-accent-bright">We&rsquo;ll tell you</span> if you&rsquo;re the asshole.
+        <h1 className="font-display font-bold leading-[1.08] tracking-tight text-[40px] sm:text-[52px] max-w-2xl">
+          <span className="text-ink">Tell us what you did.</span>
+          <br />
+          <span className="text-accent-bright">Are you the asshole?</span>
         </h1>
-        <p className="mt-4 max-w-2xl text-lg text-ink-soft">
-          Post a dilemma. <strong className="text-ink">AI drops a verdict.</strong>
-          The court of public opinion piles on after. Trustpilot, but for being told you suck.
+        <p className="mt-5 max-w-xl text-lg text-ink-soft leading-relaxed">
+          Post a dilemma. AI drops a verdict. The court of public opinion piles on after.
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <Link
