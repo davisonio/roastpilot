@@ -61,7 +61,7 @@ export default function NewPostPage() {
       <p className="text-xs uppercase tracking-[0.22em] text-accent font-semibold mb-3">
         Submit a dilemma
       </p>
-      <h1 className="text-3xl font-bold text-ink leading-tight">Confess. We&rsquo;ll judge.</h1>
+      <h1 className="font-display text-4xl font-semibold text-ink leading-tight tracking-tight">Confess. We&rsquo;ll judge.</h1>
       <p className="mt-2 text-ink-soft">
         Claude Opus delivers the first verdict. Real humans pile on after.
       </p>
@@ -95,14 +95,14 @@ export default function NewPostPage() {
             </div>
           </div>
           {error ? (
-            <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+            <div className="text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">
               {error}
             </div>
           ) : null}
           <button
             type="submit"
             disabled={submitting}
-            className="inline-flex items-center gap-2 rounded-full bg-accent text-paper px-6 h-11 font-semibold hover:bg-accent-strong disabled:opacity-60 transition-colors"
+            className="inline-flex items-center gap-2 rounded-full bg-accent text-background px-6 h-11 font-semibold hover:bg-accent-strong shadow-[0_0_22px_rgba(255,107,26,0.3)] hover:shadow-[0_0_32px_rgba(255,107,26,0.5)] disabled:opacity-60 transition-all"
           >
             {submitting ? "Asking Claude..." : "Submit for judgment →"}
           </button>

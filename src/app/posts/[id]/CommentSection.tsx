@@ -121,7 +121,7 @@ export function CommentSection({
             className="w-full bg-background border border-rule rounded-lg px-3 py-2 focus:outline-none focus:border-accent text-sm leading-relaxed"
           />
           {error ? (
-            <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+            <div className="text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">
               {error}
             </div>
           ) : null}
@@ -132,7 +132,7 @@ export function CommentSection({
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex items-center gap-2 rounded-full bg-accent text-paper px-4 h-9 text-sm font-semibold hover:bg-accent-strong disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-full bg-accent text-background px-4 h-9 text-sm font-semibold hover:bg-accent-strong shadow-[0_0_15px_rgba(255,107,26,0.3)] disabled:opacity-60 transition-all"
             >
               {submitting ? "Posting..." : "Post verdict"}
             </button>

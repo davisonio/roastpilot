@@ -20,22 +20,23 @@ export default async function Home() {
 
   return (
     <div className="mx-auto max-w-5xl px-6 pt-10 pb-20">
-      <section className="mb-10">
-        <p className="text-xs uppercase tracking-[0.22em] text-accent font-semibold mb-3">
+      <section className="mb-12">
+        <p className="text-xs uppercase tracking-[0.22em] text-accent font-semibold mb-4 flex items-center gap-2">
+          <span className="inline-block size-1.5 rounded-full bg-accent shadow-[0_0_8px_rgba(255,107,26,0.8)]" />
           Roast as a Service
         </p>
-        <h1 className="font-bold text-ink leading-[1.05] tracking-tight text-[44px] sm:text-[56px] max-w-3xl">
+        <h1 className="font-display font-semibold text-ink leading-[1.05] tracking-tight text-[46px] sm:text-[64px] max-w-3xl animate-breathe">
           Tell us what you did. We&rsquo;ll tell you if you&rsquo;re the asshole.
         </h1>
-        <p className="mt-4 max-w-2xl text-lg text-ink-soft">
-          Post a dilemma. <strong className="text-ink">Claude Opus</strong> drops a verdict in
+        <p className="mt-5 max-w-2xl text-lg text-ink-soft leading-relaxed">
+          Post a dilemma. <strong className="text-ink font-semibold">Claude Opus</strong> drops a verdict in
           seconds. The court of public opinion piles on after. Trustpilot, but for being told you
           suck.
         </p>
-        <div className="mt-6 flex flex-wrap items-center gap-3">
+        <div className="mt-7 flex flex-wrap items-center gap-4">
           <Link
             href="/posts/new"
-            className="inline-flex items-center gap-2 rounded-full bg-accent text-paper px-5 h-11 font-semibold hover:bg-accent-strong transition-colors"
+            className="inline-flex items-center gap-2 rounded-full bg-accent text-background px-6 h-12 font-semibold hover:bg-accent-strong shadow-[0_0_22px_rgba(255,107,26,0.35)] hover:shadow-[0_0_32px_rgba(255,107,26,0.55)] transition-all"
           >
             Submit your dilemma →
           </Link>
@@ -120,17 +121,17 @@ function PinnedCard({ post }: { post: FeedPost }) {
   return (
     <Link
       href={`/posts/${post.id}`}
-      className="block group rounded-2xl border-2 border-accent/60 bg-paper p-6 hover:border-accent transition-colors relative overflow-hidden"
+      className="block group rounded-2xl border border-accent/60 bg-paper p-6 noise-texture hover:border-accent transition-heat relative overflow-hidden heat-glow-1 hover:heat-glow-2"
     >
-      <span className="absolute -top-3 left-5 bg-accent text-paper text-[10px] uppercase tracking-[0.2em] font-bold px-2.5 py-1 rounded-full">
+      <span className="absolute -top-3 left-5 bg-accent text-background text-[10px] uppercase tracking-[0.2em] font-bold px-2.5 py-1 rounded-full shadow-[0_0_15px_rgba(255,107,26,0.5)]">
         Live demo · pinned
       </span>
-      <div className="flex items-start justify-between gap-6">
+      <div className="flex items-start justify-between gap-6 relative">
         <div>
-          <h3 className="text-2xl font-bold text-ink leading-tight group-hover:text-accent-strong transition-colors">
+          <h3 className="font-display text-2xl font-semibold text-ink leading-tight group-hover:text-accent transition-colors">
             {post.title}
           </h3>
-          <p className="mt-3 text-ink-soft line-clamp-3">{post.body}</p>
+          <p className="mt-3 text-ink-soft line-clamp-3 leading-relaxed">{post.body}</p>
           <div className="mt-4 flex items-center gap-3 text-sm text-ink-soft">
             <span className="font-medium text-ink">u/{post.authorName}</span>
             <span>·</span>
@@ -157,14 +158,14 @@ function PostRow({ post }: { post: FeedPost }) {
   return (
     <Link
       href={`/posts/${post.id}`}
-      className="block group rounded-xl border border-rule bg-paper p-5 hover:border-accent transition-colors"
+      className="block group rounded-xl border border-rule bg-paper p-5 noise-texture hover:border-accent/70 hover:-translate-y-0.5 transition-heat relative"
     >
-      <div className="flex items-start justify-between gap-5">
+      <div className="flex items-start justify-between gap-5 relative">
         <div className="min-w-0">
-          <h3 className="text-lg font-semibold text-ink leading-tight group-hover:text-accent-strong transition-colors">
+          <h3 className="font-display text-lg font-semibold text-ink leading-snug group-hover:text-accent transition-colors">
             {post.title}
           </h3>
-          <p className="mt-1.5 text-sm text-ink-soft line-clamp-2">{post.body}</p>
+          <p className="mt-1.5 text-sm text-ink-soft line-clamp-2 leading-relaxed">{post.body}</p>
           <div className="mt-2.5 flex items-center gap-2.5 text-xs text-ink-soft">
             <span className="font-medium text-ink">u/{post.authorName}</span>
             <span>·</span>
