@@ -48,3 +48,6 @@ next-env.d.ts
 roastpilot.db-shm
 roastpilot.db-wal
 
+
+# claude worktrees
+.claude/
