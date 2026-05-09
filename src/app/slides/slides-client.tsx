@@ -1,856 +1,566 @@
-"use client";
+'use client';
 
-import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
+import Link from 'next/link';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
+import {
+  ArrowLeft,
+  ArrowRight,
+  BadgeCheck,
+  ChevronLeft,
+  ChevronRight,
+  Coins,
+  Database,
+  Flame,
+  Gauge,
+  LockKeyhole,
+  MessageSquareQuote,
+  Route,
+  ShieldCheck,
+  Sparkles,
+  Trophy,
+  Users,
+} from 'lucide-react';
 
-const SLIDES = [
-  "title",
-  "problem",
-  "why-now",
-  "solution",
-  "how-it-works",
-  "demo",
-  "why-crypto",
-  "traction",
-  "model",
-  "competition",
-  "roadmap",
-  "ask",
-  "closing",
-] as const;
+type SlideId =
+  | 'cover'
+  | 'problem'
+  | 'insight'
+  | 'loop'
+  | 'experience'
+  | 'trust'
+  | 'architecture'
+  | 'demo'
+  | 'roadmap'
+  | 'close';
 
-export default function SlidesClient() {
-  const [i, setI] = useState(0);
-  const total = SLIDES.length;
-
-  const go = useCallback(
-    (delta: number) => {
-      setI((prev) => Math.max(0, Math.min(total - 1, prev + delta)));
-    },
-    [total],
-  );
-
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
-        e.preventDefault();
-        go(1);
-      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
-        e.preventDefault();
-        go(-1);
-      } else if (e.key === "Home") {
-        setI(0);
-      } else if (e.key === "End") {
-        setI(total - 1);
-      } else if (/^[0-9]$/.test(e.key)) {
-        const n = parseInt(e.key, 10);
-        if (n > 0 && n <= total) setI(n - 1);
-      }
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [go, total]);
-
-  return (
-    <div className="min-h-dvh bg-paper text-ink">
-      <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-6 py-8 md:px-10 md:py-12">
-        {/* Top chrome */}
-        <header className="flex items-center justify-between text-xs uppercase tracking-[0.18em] text-mute">
-          <Link href="/" className="font-medium text-ink hover:text-ember">
-            Roastpilot
-          </Link>
-          <span className="tnum">
-            {String(i + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-          </span>
-        </header>
-
-        {/* Slide stage */}
-        <main className="relative mt-8 flex flex-1 items-center">
-          <div className="w-full">
-            <Slide index={i} />
-          </div>
-        </main>
-
-        {/* Bottom chrome */}
-        <footer className="mt-8 flex items-center justify-between gap-4">
-          <button
-            onClick={() => go(-1)}
-            disabled={i === 0}
-            className="rounded-full border border-rule bg-card px-4 py-2 text-sm font-medium text-ink hover:border-ink disabled:opacity-30"
-          >
-            ← Prev
-          </button>
-
-          <div className="flex flex-1 items-center justify-center gap-1.5">
-            {SLIDES.map((s, n) => (
-              <button
-                key={s}
-                onClick={() => setI(n)}
-                aria-label={`Go to slide ${n + 1}`}
-                className={`h-1.5 rounded-full transition-all ${
-                  n === i
-                    ? "w-8 bg-ember"
-                    : "w-1.5 bg-rule hover:bg-mute"
-                }`}
-              />
-            ))}
-          </div>
-
-          <button
-            onClick={() => go(1)}
-            disabled={i === total - 1}
-            className="rounded-full bg-ember px-4 py-2 text-sm font-medium text-white hover:bg-ember-deep disabled:opacity-30"
-          >
-            Next →
-          </button>
-        </footer>
-
-        <p className="mt-3 text-center text-[11px] uppercase tracking-[0.16em] text-mute">
-          ← → arrows · space · digits 1–9 · home/end
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function Slide({ index }: { index: number }) {
-  const key = SLIDES[index];
-  switch (key) {
-    case "title":
-      return <Title />;
-    case "problem":
-      return <Problem />;
-    case "why-now":
-      return <WhyNow />;
-    case "solution":
-      return <Solution />;
-    case "how-it-works":
-      return <HowItWorks />;
-    case "demo":
-      return <Demo />;
-    case "why-crypto":
-      return <WhyCrypto />;
-    case "traction":
-      return <Traction />;
-    case "model":
-      return <Model />;
-    case "competition":
-      return <Competition />;
-    case "roadmap":
-      return <Roadmap />;
-    case "ask":
-      return <Ask />;
-    case "closing":
-      return <Closing />;
-  }
-}
-
-/* ---------- Slides ---------- */
-
-function Eyebrow({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="text-xs font-medium uppercase tracking-[0.2em] text-ember">
-      {children}
-    </p>
-  );
-}
-
-function H1({ children }: { children: React.ReactNode }) {
-  return (
-    <h1 className="display mt-5 text-5xl leading-[0.95] text-ink md:text-7xl">
-      {children}
-    </h1>
-  );
-}
-
-function Lede({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mt-6 max-w-3xl text-lg leading-relaxed text-mute md:text-xl">
-      {children}
-    </p>
-  );
-}
-
-function Title() {
-  return (
-    <div>
-      <Eyebrow>Roast as a Service</Eyebrow>
-      <H1>
-        Pay for the roast you{" "}
-        <span className="text-ember">deserve.</span>
-      </H1>
-      <Lede>
-        A two-sided marketplace where requesters post real-life scenarios,
-        attach a bounty, and verified humans compete to deliver the sharpest
-        cut. AI-assisted, but humans hold the knife.
-      </Lede>
-
-      <div className="mt-12 flex flex-wrap items-center gap-3 text-sm text-mute">
-        <span className="rounded-full border border-rule bg-card px-3 py-1.5 font-medium text-ink">
-          🔥 Roastpoints
-        </span>
-        <span className="rounded-full border border-rule bg-card px-3 py-1.5 font-medium text-ink">
-          Stripe + Solana bounties
-        </span>
-        <span className="rounded-full border border-rule bg-card px-3 py-1.5 font-medium text-ink">
-          Proof-of-Human verified
-        </span>
-      </div>
-    </div>
-  );
-}
-
-function Problem() {
-  return (
-    <div>
-      <Eyebrow>The problem</Eyebrow>
-      <H1>
-        Everyone needs a verdict.{" "}
-        <span className="text-mute">Nobody pays for a good one.</span>
-      </H1>
-      <Lede>
-        Reddit&apos;s AITA gets <span className="text-ink font-medium">100M+ readers</span>{" "}
-        a year begging strangers to judge their lives. The takes are mob-shaped,
-        karma-farmed, and free. ChatGPT will hedge until you fall asleep. Your
-        friends are too polite.
-      </Lede>
-
-      <div className="mt-10 grid gap-4 md:grid-cols-3">
-        <Card>
-          <div className="display text-4xl text-ember tnum">100M+</div>
-          <div className="mt-2 text-sm text-mute">
-            annual AITA readers — proof of demand for verdicts
-          </div>
-        </Card>
-        <Card>
-          <div className="display text-4xl text-esh tnum">∞</div>
-          <div className="mt-2 text-sm text-mute">
-            hedged AI replies that won&apos;t commit to a take
-          </div>
-        </Card>
-        <Card>
-          <div className="display text-4xl text-nah tnum">$0</div>
-          <div className="mt-2 text-sm text-mute">
-            paid to the strangers doing the actual work
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function WhyNow() {
-  return (
-    <div>
-      <Eyebrow>Why now</Eyebrow>
-      <H1>
-        AI made the <span className="text-ember">setup</span> cheap.
-        <br />
-        Humans still own the <span className="text-ember">punchline.</span>
-      </H1>
-      <Lede>
-        Three things lined up in 2026:
-      </Lede>
-
-      <ol className="mt-8 space-y-4">
-        <Beat n="01" title="AI summarises, can&apos;t roast">
-          Frontier models will draft a polite reference take in seconds, but
-          they refuse to be cruel. Comedy needs a human signature.
-        </Beat>
-        <Beat n="02" title="Sub-cent settlement is real">
-          Solana clears $1 bounties without burning the bounty in fees. Stripe
-          handles the normies. Both work today.
-        </Beat>
-        <Beat n="03" title="Sybil resistance shipped">
-          Proof-of-Human + wallet-bound identity means &ldquo;verified roaster&rdquo;
-          isn&apos;t hand-wavy anymore — it&apos;s an on-chain fact.
-        </Beat>
-      </ol>
-    </div>
-  );
-}
-
-function Beat({
-  n,
-  title,
-  children,
-}: {
-  n: string;
+type SlideMeta = {
+  id: SlideId;
+  kicker: string;
   title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <li className="card flex items-start gap-5 p-5">
-      <span className="display text-3xl text-ember tnum">{n}</span>
-      <div>
-        <div className="font-medium text-ink">{title}</div>
-        <p className="mt-1 text-sm leading-relaxed text-mute">{children}</p>
-      </div>
-    </li>
-  );
+};
+
+const slideMeta: SlideMeta[] = [
+  { id: 'cover', kicker: 'Roast', title: 'Get roasted. Honestly.' },
+  { id: 'problem', kicker: 'The gap', title: 'AI is bad at honest feedback.' },
+  { id: 'insight', kicker: 'Core insight', title: 'Accountable entry changes the room.' },
+  { id: 'loop', kicker: 'Product loop', title: 'Roast turns vulnerable questions into ranked signal.' },
+  { id: 'experience', kicker: 'Experience', title: 'The demo already has the full ritual.' },
+  { id: 'trust', kicker: 'Trust model', title: 'The audit page shows what crossed the boundary.' },
+  { id: 'architecture', kicker: 'Build', title: 'Simple primitives make it shippable.' },
+  { id: 'demo', kicker: 'Live demo', title: 'A judge can understand it in 90 seconds.' },
+  { id: 'roadmap', kicker: 'Next 48 hours', title: 'The prototype becomes a real room.' },
+  { id: 'close', kicker: 'Close', title: 'Social honesty needs new rules.' },
+];
+
+const stats = [
+  { value: '4', label: 'feedback lanes' },
+  { value: '280', label: 'characters' },
+  { value: '5', label: 'heat levels' },
+  { value: '6', label: 'demo routes' },
+];
+
+const principles: { label: string; text: string; icon: LucideIcon }[] = [
+  {
+    label: 'Verified entry',
+    text: 'Every member passes a presence check before joining the room.',
+    icon: ShieldCheck,
+  },
+  {
+    label: 'Anonymous inside',
+    text: 'Two-word handles keep feedback honest without exposing identity.',
+    icon: LockKeyhole,
+  },
+  {
+    label: 'Paid seriousness',
+    text: 'A small economic gate filters for people who actually want the truth.',
+    icon: Coins,
+  },
+];
+
+const productLoop = [
+  'Post a pitch, decision, product, or personal dilemma.',
+  'Receive short roasts that cut through polite noise.',
+  'Heat levels turn participation into visible momentum.',
+  'Points and leaderboards reward useful honesty.',
+];
+
+const routes = [
+  { route: '/', label: 'Landing', detail: 'Membership promise' },
+  { route: '/signup', label: 'Apply', detail: 'Entry ritual' },
+  { route: '/feed', label: 'Feed', detail: 'Heat-ranked posts' },
+  { route: '/post/[id]', label: 'Roast', detail: 'Composer and ignite points' },
+  { route: '/leaderboard', label: 'Leaders', detail: 'Ranked value' },
+  { route: '/audit', label: 'Audit', detail: 'Trust boundary' },
+];
+
+const architecture = [
+  { name: 'users', copy: 'Anonymous handles' },
+  { name: 'posts', copy: 'Candid prompts' },
+  { name: 'roasts', copy: 'Short replies and points' },
+  { name: 'audit_log', copy: 'Verified attestations' },
+];
+
+const demoPath = [
+  'Frame the room: paid, verified, anonymous.',
+  'Open the feed and show heat-ranked participation.',
+  'Roast the peak-heat Bitcoin post from the live composer.',
+  'Ignite the best reply, then show leaderboard and audit.',
+];
+
+const roadmap = [
+  'Wallet-based membership and payment verification',
+  'Real Supabase mutations for every core action',
+  'On-chain attestation anchoring for public verification',
+  'Moderation tools that protect the room without deanonymizing members',
+];
+
+function clampSlide(index: number) {
+  return Math.max(0, Math.min(slideMeta.length - 1, index));
 }
 
-function Solution() {
+function Kicker({ children }: { children: ReactNode }) {
   return (
-    <div>
-      <Eyebrow>The solution</Eyebrow>
-      <H1>
-        Roastpilot is a <span className="text-ember">bounty board</span>{" "}
-        for verdicts.
-      </H1>
-      <Lede>
-        Post your scenario, attach a bounty in USD or SOL, and verified human
-        roasters compete. Top three split the pot{" "}
-        <span className="text-ink font-medium">50 / 30 / 20</span>
-        {" "}in Roastpoints. AI drafts a reference take so you&apos;re never reading
-        a blank page.
-      </Lede>
-
-      <div className="mt-10 grid gap-4 md:grid-cols-2">
-        <Card>
-          <div className="text-xs uppercase tracking-[0.18em] text-ember">For requesters</div>
-          <div className="display mt-2 text-3xl text-ink">A real take, on demand.</div>
-          <ul className="mt-4 space-y-2 text-sm text-mute">
-            <li>· Pay for a verdict that bites</li>
-            <li>· Stripe checkout or wallet pay</li>
-            <li>· Pick your top three from the pile</li>
-          </ul>
-        </Card>
-        <Card>
-          <div className="text-xs uppercase tracking-[0.18em] text-ember">For roasters</div>
-          <div className="display mt-2 text-3xl text-ink">Get paid to be right.</div>
-          <ul className="mt-4 space-y-2 text-sm text-mute">
-            <li>· POH + wallet-bound identity</li>
-            <li>· Climb the public leaderboard</li>
-            <li>· 🔥 Roastpoints settle to your wallet</li>
-          </ul>
-        </Card>
-      </div>
+    <div className="flex items-center gap-3 text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-ember-2">
+      <span className="h-px w-10 bg-ember-1" />
+      <span>{children}</span>
     </div>
   );
 }
 
-function HowItWorks() {
+function IconBadge({ icon: Icon }: { icon: LucideIcon }) {
   return (
-    <div>
-      <Eyebrow>How it works</Eyebrow>
-      <H1>Four steps. Nothing weird.</H1>
-
-      <div className="mt-10 grid gap-4 md:grid-cols-4">
-        <Step n="1" label="Post">
-          Drop your scenario. Stripe or Solana bounty.
-        </Step>
-        <Step n="2" label="AI drafts">
-          Claude writes the reference roast as inspiration only.
-        </Step>
-        <Step n="3" label="Humans cut">
-          Verified roasters submit their cleaner, sharper version.
-        </Step>
-        <Step n="4" label="You judge">
-          You pick the top three. Bounty splits 50 / 30 / 20.
-        </Step>
-      </div>
-
-      <p className="mt-10 max-w-2xl text-sm text-mute">
-        Moderation runs on Claude Haiku in the background. POH gates roaster
-        signup. The owner of the request is the only one who can rank — no mob
-        upvoting.
-      </p>
+    <div className="flex size-12 shrink-0 items-center justify-center rounded-md border border-ember-1/35 bg-ember-1/10 text-ember-2 shadow-[0_0_32px_rgba(255,107,26,0.16)]">
+      <Icon className="size-6" />
     </div>
   );
 }
 
-function Step({
-  n,
-  label,
+function Stage({
+  meta,
   children,
+  align = 'split',
 }: {
-  n: string;
-  label: string;
-  children: React.ReactNode;
+  meta: SlideMeta;
+  children: ReactNode;
+  align?: 'split' | 'center';
 }) {
   return (
-    <div className="card p-5">
-      <div className="display text-4xl text-ember tnum">{n}</div>
-      <div className="mt-3 text-sm font-medium uppercase tracking-[0.14em] text-ink">
-        {label}
-      </div>
-      <p className="mt-2 text-sm leading-relaxed text-mute">{children}</p>
-    </div>
-  );
-}
+    <article
+      key={meta.id}
+      className="relative grid h-full w-full animate-fade-in-up overflow-hidden px-5 pb-24 pt-20 sm:px-8 lg:px-12"
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(255,107,26,0.20),transparent_30%),linear-gradient(250deg,rgba(255,217,110,0.12),transparent_34%),repeating-linear-gradient(90deg,rgba(244,237,228,0.035)_0_1px,transparent_1px_80px)]" />
+      <div className="pointer-events-none absolute -right-16 top-16 h-40 w-[38rem] rotate-[-18deg] bg-ember-1/15 [clip-path:polygon(0_0,100%_16%,92%_100%,8%_82%)]" />
+      <div className="pointer-events-none absolute -bottom-24 left-0 h-44 w-[44rem] rotate-[8deg] bg-cool/20 [clip-path:polygon(6%_0,100%_22%,86%_100%,0_74%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-14 h-px bg-gradient-to-r from-transparent via-ember-1/70 to-transparent" />
 
-function Demo() {
-  return (
-    <div>
-      <Eyebrow>The product</Eyebrow>
-      <H1>Live, working, deployed.</H1>
-      <Lede>
-        Seeded with the top scenarios from r/AmItheAsshole so the marketplace
-        never looks empty. Try the real thing.
-      </Lede>
-
-      <div className="mt-10 grid gap-5 md:grid-cols-2">
-        <Card>
-          <div className="text-xs uppercase tracking-[0.18em] text-ember">Try it</div>
-          <ul className="mt-4 space-y-3 text-sm">
-            <Linky href="/">/ — Landing &amp; latest cases</Linky>
-            <Linky href="/browse">/browse — Open bounties</Linky>
-            <Linky href="/request">/request — Post a scenario</Linky>
-            <Linky href="/leaderboard">/leaderboard — Top roasters</Linky>
-            <Linky href="/become-a-roaster">/become-a-roaster — POH signup</Linky>
-          </ul>
-        </Card>
-        <Card>
-          <div className="text-xs uppercase tracking-[0.18em] text-ember">Under the hood</div>
-          <ul className="mt-4 space-y-2 text-sm text-mute">
-            <li>
-              <span className="text-ink font-medium">Next.js 16</span> · App
-              Router · Tailwind v4
-            </li>
-            <li>
-              <span className="text-ink font-medium">Drizzle + SQLite</span>{" "}
-              (Postgres-ready)
-            </li>
-            <li>
-              <span className="text-ink font-medium">Anthropic Claude</span> ·
-              Sonnet 4.6 for drafts, Haiku 4.5 for moderation
-            </li>
-            <li>
-              <span className="text-ink font-medium">Solana wallet adapter</span>{" "}
-              · Phantom + Solflare on devnet
-            </li>
-            <li>
-              <span className="text-ink font-medium">Stripe Checkout</span> for
-              fiat bounties
-            </li>
-          </ul>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function Linky({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <li>
-      <Link
-        href={href}
-        className="group flex items-center justify-between gap-3 rounded-md px-2 py-1.5 hover:bg-soft"
+      <div
+        className={
+          align === 'center'
+            ? 'relative mx-auto flex max-w-6xl flex-col items-center justify-center text-center'
+            : 'relative mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center'
+        }
       >
-        <span className="font-mono text-[13px] text-ink">{children}</span>
-        <span className="text-mute group-hover:text-ember">→</span>
-      </Link>
-    </li>
+        <div className={align === 'center' ? 'max-w-5xl' : ''}>
+          <Kicker>{meta.kicker}</Kicker>
+          <h1 className="mt-5 font-display text-4xl font-semibold leading-[0.92] text-foreground sm:text-6xl lg:text-8xl">
+            {meta.title}
+          </h1>
+        </div>
+        <div className={align === 'center' ? 'mt-10 w-full max-w-5xl' : ''}>
+          {children}
+        </div>
+      </div>
+    </article>
   );
 }
 
-function WhyCrypto() {
+function CoverSlide({ meta }: { meta: SlideMeta }) {
   return (
-    <div>
-      <Eyebrow>Why crypto</Eyebrow>
-      <H1>
-        Rip out the chain and{" "}
-        <span className="text-ember">three things break.</span>
-      </H1>
-
-      <ol className="mt-10 space-y-5">
-        <Break
-          n="01"
-          title="Sub-cent bounties"
-          test="A $1 verdict can&apos;t pay 30¢ in card fees."
-          fix="Solana settles instantly for fractions of a cent."
-        />
-        <Break
-          n="02"
-          title="Sybil-resistant identity"
-          test="Anonymous roasters with no skin in the game = trolls."
-          fix="POH + wallet-bound handle = one human, one reputation."
-        />
-        <Break
-          n="03"
-          title="Portable points"
-          test="A platform-locked score is a hostage, not a reward."
-          fix="Roastpoints live on a public ledger and travel with the wallet."
-        />
-      </ol>
-    </div>
-  );
-}
-
-function Break({
-  n,
-  title,
-  test,
-  fix,
-}: {
-  n: string;
-  title: string;
-  test: string;
-  fix: string;
-}) {
-  return (
-    <li className="card grid gap-3 p-5 md:grid-cols-[auto_1fr_1fr] md:items-center">
-      <span className="display text-3xl text-ember tnum">{n}</span>
-      <div>
-        <div className="font-medium text-ink">{title}</div>
-        <div className="mt-1 text-sm text-mute">{test}</div>
-      </div>
-      <div className="rounded-md bg-[color:var(--color-ember-soft)] px-3 py-2 text-sm text-ember-deep">
-        {fix}
-      </div>
-    </li>
-  );
-}
-
-function Traction() {
-  return (
-    <div>
-      <Eyebrow>Where we are</Eyebrow>
-      <H1>
-        Shipped. Seeded. <span className="text-ember">Live on Vercel.</span>
-      </H1>
-      <Lede>
-        Honest read: this is hackathon-stage. The marketplace is built end-to-end,
-        seeded with real Reddit scenarios, and both payment rails work in
-        sandbox. Next is paid roasters and mainnet bounties.
-      </Lede>
-
-      <div className="mt-10 grid gap-4 md:grid-cols-4">
-        <Metric label="Routes shipped" value="11" />
-        <Metric label="Seeded cases" value="50+" />
-        <Metric label="Payment rails" value="2" sub="Stripe + SOL" />
-        <Metric label="Days to MVP" value="< 7" />
-      </div>
-
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
-        <Tick>End-to-end request → roast → judge → payout flow</Tick>
-        <Tick>Wallet auth with cookie session, POH-gated signup</Tick>
-        <Tick>Claude-drafted reference roast + Haiku moderation</Tick>
-      </div>
-    </div>
-  );
-}
-
-function Metric({
-  label,
-  value,
-  sub,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-}) {
-  return (
-    <div className="card p-5">
-      <div className="display text-4xl text-ink tnum">{value}</div>
-      {sub && <div className="mt-1 text-xs text-ember">{sub}</div>}
-      <div className="mt-2 text-xs uppercase tracking-[0.14em] text-mute">
-        {label}
-      </div>
-    </div>
-  );
-}
-
-function Tick({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="card flex items-start gap-3 p-4 text-sm">
-      <span className="text-verified">✓</span>
-      <span className="text-ink">{children}</span>
-    </div>
-  );
-}
-
-function Model() {
-  return (
-    <div>
-      <Eyebrow>Business model</Eyebrow>
-      <H1>
-        Take rate on every <span className="text-ember">verdict.</span>
-      </H1>
-
-      <div className="mt-10 grid gap-4 md:grid-cols-2">
-        <Card>
-          <div className="text-xs uppercase tracking-[0.18em] text-ember">Primary</div>
-          <div className="display mt-2 text-3xl text-ink">10% of every bounty.</div>
-          <p className="mt-3 text-sm text-mute">
-            Standard marketplace cut. Roasters keep 90% of the pot, split
-            50 / 30 / 20 across the top three.
-          </p>
-        </Card>
-        <Card>
-          <div className="text-xs uppercase tracking-[0.18em] text-ember">Secondary</div>
-          <div className="display mt-2 text-3xl text-ink">Roaster verification.</div>
-          <p className="mt-3 text-sm text-mute">
-            POH costs us money. Verified roasters pay a one-time fee to unlock
-            higher-bounty pools.
-          </p>
-        </Card>
-        <Card>
-          <div className="text-xs uppercase tracking-[0.18em] text-ember">Future</div>
-          <div className="display mt-2 text-3xl text-ink">Featured cases.</div>
-          <p className="mt-3 text-sm text-mute">
-            Brands and creators sponsor cases for distribution. Built into the
-            same marketplace surface.
-          </p>
-        </Card>
-        <Card>
-          <div className="text-xs uppercase tracking-[0.18em] text-ember">Future</div>
-          <div className="display mt-2 text-3xl text-ink">Roastpoints economy.</div>
-          <p className="mt-3 text-sm text-mute">
-            On-chain reputation that gates premium pools, partner discounts, and
-            eventually a redeemable token.
-          </p>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function Competition() {
-  return (
-    <div>
-      <Eyebrow>Competition</Eyebrow>
-      <H1>
-        Everyone&apos;s judging.{" "}
-        <span className="text-mute">Nobody&apos;s built the rails.</span>
-      </H1>
-
-      <div className="mt-10 overflow-hidden rounded-2xl border border-rule bg-card">
-        <table className="w-full text-sm">
-          <thead className="bg-soft text-left text-xs uppercase tracking-[0.14em] text-mute">
-            <tr>
-              <th className="px-4 py-3 font-medium">&nbsp;</th>
-              <th className="px-4 py-3 font-medium">Sharp takes</th>
-              <th className="px-4 py-3 font-medium">Pays the human</th>
-              <th className="px-4 py-3 font-medium">Sybil-resistant</th>
-              <th className="px-4 py-3 font-medium">Portable rep</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-rule">
-            <Row name="Reddit / AITA" cells={["yes", "no", "no", "no"]} />
-            <Row name="ChatGPT" cells={["no", "n/a", "n/a", "no"]} />
-            <Row name="Advice columns" cells={["sometimes", "yes", "yes", "no"]} />
-            <Row name="Friends" cells={["no", "no", "yes", "no"]} />
-            <Row
-              name="Roastpilot"
-              cells={["yes", "yes", "yes", "yes"]}
-              highlight
-            />
-          </tbody>
-        </table>
-      </div>
-
-      <p className="mt-6 max-w-2xl text-sm text-mute">
-        The status quo isn&apos;t a competitor — it&apos;s an attention farm with no
-        alignment. We pay the people doing the work.
+    <Stage meta={meta} align="center">
+      <p className="mx-auto max-w-3xl text-xl leading-8 text-muted-foreground sm:text-2xl sm:leading-9">
+        A members-only feedback room where identity stays outside, candor stays inside, and the best truth earns heat.
       </p>
-    </div>
+      <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-4">
+        {stats.map((stat) => (
+          <div key={stat.label} className="bg-surface px-6 py-6 text-left">
+            <div className="font-display text-5xl font-semibold text-ember-3">{stat.value}</div>
+            <div className="mt-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">{stat.label}</div>
+          </div>
+        ))}
+      </div>
+    </Stage>
   );
 }
 
-function Row({
-  name,
-  cells,
-  highlight,
-}: {
-  name: string;
-  cells: string[];
-  highlight?: boolean;
-}) {
+function ProblemSlide({ meta }: { meta: SlideMeta }) {
   return (
-    <tr className={highlight ? "bg-[color:var(--color-ember-soft)]" : ""}>
-      <td className={`px-4 py-3 font-medium ${highlight ? "text-ember-deep" : "text-ink"}`}>
-        {name}
-      </td>
-      {cells.map((c, i) => (
-        <td key={i} className="px-4 py-3 tnum">
-          <Cell value={c} />
-        </td>
-      ))}
-    </tr>
-  );
-}
-
-function Cell({ value }: { value: string }) {
-  if (value === "yes")
-    return <span className="text-verified font-medium">✓ yes</span>;
-  if (value === "no") return <span className="text-mute">— no</span>;
-  if (value === "n/a") return <span className="text-mute">n/a</span>;
-  return <span className="text-nta">~ {value}</span>;
-}
-
-function Roadmap() {
-  return (
-    <div>
-      <Eyebrow>What&apos;s next</Eyebrow>
-      <H1>
-        From hackathon to{" "}
-        <span className="text-ember">live marketplace.</span>
-      </H1>
-
-      <ol className="mt-10 space-y-3">
-        <Phase
-          when="Now"
-          title="MVP shipped"
-          items={[
-            "End-to-end marketplace flow",
-            "Stripe + Solana devnet rails",
-            "AITA-seeded case library",
-          ]}
-          done
-        />
-        <Phase
-          when="Next 30 days"
-          title="Mainnet + first roasters"
-          items={[
-            "Mainnet Solana payouts",
-            "First 100 verified roasters",
-            "Postgres migration for production",
-          ]}
-        />
-        <Phase
-          when="60–90 days"
-          title="Distribution"
-          items={[
-            "Featured / sponsored cases",
-            "Creator partnerships",
-            "Mobile-first request flow",
-          ]}
-        />
-        <Phase
-          when="Later"
-          title="Reputation economy"
-          items={[
-            "Roastpoints redemption",
-            "Cross-app POH integrations",
-            "Open API for third-party clients",
-          ]}
-        />
-      </ol>
-    </div>
-  );
-}
-
-function Phase({
-  when,
-  title,
-  items,
-  done,
-}: {
-  when: string;
-  title: string;
-  items: string[];
-  done?: boolean;
-}) {
-  return (
-    <li className="card grid gap-3 p-5 md:grid-cols-[140px_1fr]">
-      <div>
-        <div className="text-xs uppercase tracking-[0.18em] text-ember">
-          {when}
+    <Stage meta={meta}>
+      <div className="space-y-7">
+        <p className="text-xl leading-8 text-muted-foreground">
+          Public identity makes people perform. Pure anonymity attracts low-effort abuse. Builders are stuck between polite lies and chaotic comment sections.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {['Flattery', 'Fear', 'Noise'].map((word, index) => (
+            <div key={word} className="relative overflow-hidden rounded-lg border border-border bg-surface p-5">
+              <div className="font-display text-3xl text-foreground">{word}</div>
+              <div className="mt-5 h-2 rounded-full bg-muted">
+                <div
+                  className="h-2 rounded-full bg-ember-1"
+                  style={{ width: `${82 - index * 18}%` }}
+                />
+              </div>
+            </div>
+          ))}
         </div>
-        <div
-          className={`mt-1 text-sm font-medium ${
-            done ? "text-verified" : "text-ink"
-          }`}
-        >
-          {done ? "✓ Done" : title}
+        <div className="border-t border-ember-1/30 pt-6 text-2xl font-semibold leading-8 text-foreground">
+          The win: candor with accountability, without social risk.
         </div>
       </div>
-      <ul className="text-sm text-mute">
-        {items.map((it) => (
-          <li key={it} className="flex items-start gap-2">
-            <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-mute" />
-            <span>{it}</span>
+    </Stage>
+  );
+}
+
+function InsightSlide({ meta }: { meta: SlideMeta }) {
+  return (
+    <Stage meta={meta}>
+      <div className="grid gap-4">
+        {principles.map(({ label, text, icon }) => (
+          <div key={label} className="flex gap-5 rounded-lg border border-border bg-surface/90 p-5">
+            <IconBadge icon={icon} />
+            <div>
+              <h2 className="font-display text-3xl font-semibold text-foreground">{label}</h2>
+              <p className="mt-2 text-lg leading-7 text-muted-foreground">{text}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Stage>
+  );
+}
+
+function LoopSlide({ meta }: { meta: SlideMeta }) {
+  return (
+    <Stage meta={meta}>
+      <ol className="grid gap-4">
+        {productLoop.map((step, index) => (
+          <li key={step} className="grid grid-cols-[4rem_1fr] items-stretch overflow-hidden rounded-lg border border-border bg-surface">
+            <div className="flex items-center justify-center bg-ember-1 text-primary-foreground">
+              <span className="font-display text-4xl font-semibold">{index + 1}</span>
+            </div>
+            <p className="px-6 py-5 text-xl leading-8 text-muted-foreground">{step}</p>
           </li>
         ))}
-      </ul>
-    </li>
+      </ol>
+    </Stage>
   );
 }
 
-function Ask() {
+function ExperienceSlide({ meta }: { meta: SlideMeta }) {
   return (
-    <div>
-      <Eyebrow>The ask</Eyebrow>
-      <H1>
-        Help us turn this into{" "}
-        <span className="text-ember">a real marketplace.</span>
-      </H1>
-      <Lede>
-        We&apos;re looking for distribution partners, early roasters with a real
-        voice, and judges who&apos;ll tell us what&apos;s broken before users do.
-      </Lede>
-
-      <div className="mt-10 grid gap-4 md:grid-cols-3">
-        <Card>
-          <div className="display text-3xl text-ink">Try it</div>
-          <p className="mt-2 text-sm text-mute">
-            Post a scenario at{" "}
-            <Link href="/request" className="text-ember underline-offset-4 hover:underline">
-              /request
-            </Link>
-            . Tell us what feels off.
-          </p>
-        </Card>
-        <Card>
-          <div className="display text-3xl text-ink">Roast for us</div>
-          <p className="mt-2 text-sm text-mute">
-            Verified roasters with sharp voices.{" "}
-            <Link
-              href="/become-a-roaster"
-              className="text-ember underline-offset-4 hover:underline"
-            >
-              /become-a-roaster
-            </Link>
-          </p>
-        </Card>
-        <Card>
-          <div className="display text-3xl text-ink">Back us</div>
-          <p className="mt-2 text-sm text-mute">
-            Pre-seed conversations open. Hackathon judges: see scoring criteria
-            in the appendix.
-          </p>
-        </Card>
+    <Stage meta={meta}>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {routes.map((item) => (
+          <div key={item.route} className="rounded-lg border border-border bg-surface p-5">
+            <div className="font-mono text-sm text-ember-2">{item.route}</div>
+            <div className="mt-4 font-display text-3xl font-semibold text-foreground">{item.label}</div>
+            <div className="mt-2 text-base leading-6 text-muted-foreground">{item.detail}</div>
+          </div>
+        ))}
       </div>
-    </div>
+    </Stage>
   );
 }
 
-function Closing() {
+function TrustSlide({ meta }: { meta: SlideMeta }) {
   return (
-    <div className="text-center">
-      <Eyebrow>Roastpilot</Eyebrow>
-      <h1 className="display mt-6 text-6xl leading-[0.95] text-ink md:text-8xl">
-        Pay for the roast you{" "}
-        <span className="text-ember">deserve.</span>
-      </h1>
-      <p className="mx-auto mt-8 max-w-2xl text-lg text-mute md:text-xl">
-        Real scenarios. Real money. Real humans, sharper than your group chat.
+    <Stage meta={meta}>
+      <div className="grid gap-5 lg:grid-cols-[1fr_0.82fr]">
+        <div className="rounded-lg border border-border bg-surface p-6">
+          <div className="mb-6 flex items-center gap-4 text-ember-2">
+            <IconBadge icon={BadgeCheck} />
+            <span className="text-xl font-semibold text-foreground">Public proof, private identity</span>
+          </div>
+          <div className="space-y-4 text-xl leading-8 text-muted-foreground">
+            <p>Actions become attestations: post, roast, point.</p>
+            <p>Audit records store confidence, scope, and attestation hash.</p>
+            <p>Identity and message context stay separate from the public trail.</p>
+          </div>
+        </div>
+        <div className="rounded-lg border border-ember-1/35 bg-ember-1/10 p-6">
+          <div className="font-mono text-sm uppercase tracking-[0.2em] text-ember-3">designed for Solana</div>
+          <div className="mt-6 space-y-4 font-mono text-sm text-foreground">
+            <div>0x4f3a...8c21 / post / 0.94</div>
+            <div>0x7b2d...4e55 / roast / 0.91</div>
+            <div>0x1c9f...6a03 / point / 0.97</div>
+          </div>
+        </div>
+      </div>
+    </Stage>
+  );
+}
+
+function ArchitectureSlide({ meta }: { meta: SlideMeta }) {
+  return (
+    <Stage meta={meta}>
+      <div className="grid gap-4">
+        <div className="grid gap-4 sm:grid-cols-4">
+          {architecture.map((table) => (
+            <div key={table.name} className="rounded-lg border border-border bg-surface p-5">
+              <Database className="mb-4 size-7 text-ember-2" />
+              <div className="font-mono text-sm text-ember-3">{table.name}</div>
+              <p className="mt-3 text-lg leading-6 text-muted-foreground">{table.copy}</p>
+            </div>
+          ))}
+        </div>
+        <div className="grid gap-3 rounded-lg border border-border bg-background/70 p-5 sm:grid-cols-3">
+          {[
+            { icon: Gauge, label: 'Heat engine', copy: '0, warm, ember, hot, peak' },
+            { icon: Users, label: 'RLS ready', copy: 'Public reads, controlled writes' },
+            { icon: Trophy, label: 'Ranking views', copy: 'Leaderboard and roast counts' },
+          ].map(({ icon: Icon, label, copy }) => (
+            <div key={label}>
+              <Icon className="mb-3 size-6 text-ember-2" />
+              <div className="font-display text-2xl text-foreground">{label}</div>
+              <p className="mt-1 text-sm text-muted-foreground">{copy}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Stage>
+  );
+}
+
+function DemoSlide({ meta }: { meta: SlideMeta }) {
+  return (
+    <Stage meta={meta}>
+      <div className="space-y-4">
+        {demoPath.map((item, index) => (
+          <div key={item} className="flex items-start gap-4 rounded-lg border border-border bg-surface p-5">
+            <Route className="mt-1 size-6 shrink-0 text-ember-2" />
+            <div>
+              <div className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">step {index + 1}</div>
+              <p className="mt-1 text-xl leading-8 text-foreground">{item}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Stage>
+  );
+}
+
+function RoadmapSlide({ meta }: { meta: SlideMeta }) {
+  return (
+    <Stage meta={meta}>
+      <div className="space-y-5">
+        {roadmap.map((item) => (
+          <div key={item} className="flex items-center gap-4 border-b border-border pb-5 last:border-b-0">
+            <Sparkles className="size-6 shrink-0 text-ember-3" />
+            <p className="text-2xl leading-8 text-muted-foreground">{item}</p>
+          </div>
+        ))}
+      </div>
+    </Stage>
+  );
+}
+
+function CloseSlide({ meta }: { meta: SlideMeta }) {
+  return (
+    <Stage meta={meta} align="center">
+      <MessageSquareQuote className="mx-auto mb-8 size-14 text-ember-2" />
+      <p className="mx-auto max-w-3xl text-2xl leading-9 text-muted-foreground">
+        Roast gives people a room where the truth is easier to say, harder to fake, and valuable enough to remember.
       </p>
-      <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
+      <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Link
           href="/"
-          className="rounded-full bg-ember px-6 py-3 text-sm font-medium text-white hover:bg-ember-deep"
+          className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-ember-1 px-6 font-semibold text-primary-foreground transition-colors hover:bg-ember-2"
         >
-          Open the app →
+          Demo the room
+          <ArrowRight className="size-4" />
         </Link>
         <Link
-          href="/browse"
-          className="rounded-full border border-rule bg-card px-6 py-3 text-sm font-medium text-ink hover:border-ink"
+          href="/video"
+          className="inline-flex h-12 items-center justify-center rounded-md border border-border px-6 font-semibold text-foreground transition-colors hover:bg-surface"
         >
-          Browse open bounties
+          Watch demo
         </Link>
       </div>
-      <p className="mt-12 text-xs uppercase tracking-[0.18em] text-mute">
-        roastpilot.vercel.app · 🔥 thanks for reading
-      </p>
-    </div>
+    </Stage>
   );
 }
 
-/* ---------- Primitives ---------- */
+export function SlidesClient() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const activeMeta = slideMeta[activeIndex];
 
-function Card({ children }: { children: React.ReactNode }) {
-  return <div className="card p-5">{children}</div>;
+  const goTo = useCallback((index: number) => {
+    setActiveIndex(clampSlide(index));
+  }, []);
+
+  const goNext = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo]);
+  const goPrev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') {
+        event.preventDefault();
+        setActiveIndex((index) => clampSlide(index + 1));
+      }
+
+      if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+        event.preventDefault();
+        setActiveIndex((index) => clampSlide(index - 1));
+      }
+
+      if (event.key === 'Home') {
+        event.preventDefault();
+        setActiveIndex(0);
+      }
+
+      if (event.key === 'End') {
+        event.preventDefault();
+        setActiveIndex(slideMeta.length - 1);
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+
+    if (!audio) {
+      return;
+    }
+
+    audio.volume = 0.72;
+
+    const playAudio = () => {
+      audio.play().catch(() => {
+        // Browsers can block audible autoplay until the first user gesture.
+      });
+    };
+
+    playAudio();
+    window.addEventListener('pointerdown', playAudio, { once: true });
+    window.addEventListener('keydown', playAudio, { once: true });
+
+    return () => {
+      window.removeEventListener('pointerdown', playAudio);
+      window.removeEventListener('keydown', playAudio);
+    };
+  }, []);
+
+  const activeSlide = useMemo(() => {
+    switch (activeMeta.id) {
+      case 'cover':
+        return <CoverSlide meta={activeMeta} />;
+      case 'problem':
+        return <ProblemSlide meta={activeMeta} />;
+      case 'insight':
+        return <InsightSlide meta={activeMeta} />;
+      case 'loop':
+        return <LoopSlide meta={activeMeta} />;
+      case 'experience':
+        return <ExperienceSlide meta={activeMeta} />;
+      case 'trust':
+        return <TrustSlide meta={activeMeta} />;
+      case 'architecture':
+        return <ArchitectureSlide meta={activeMeta} />;
+      case 'demo':
+        return <DemoSlide meta={activeMeta} />;
+      case 'roadmap':
+        return <RoadmapSlide meta={activeMeta} />;
+      case 'close':
+        return <CloseSlide meta={activeMeta} />;
+    }
+  }, [activeMeta]);
+
+  return (
+    <main className="relative h-screen overflow-hidden bg-background text-foreground">
+      <nav className="fixed left-0 right-0 top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur-xl">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-12">
+          <Link href="/" className="flex items-center gap-2 font-display text-lg font-semibold">
+            <Flame className="size-5 text-ember-1" />
+            Roast
+          </Link>
+          <div className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
+            {String(activeIndex + 1).padStart(2, '0')} / {String(slideMeta.length).padStart(2, '0')}
+          </div>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 rounded-md bg-ember-1 px-3 py-1.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-ember-2"
+            >
+              Open app
+              <ArrowRight className="size-4" />
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {activeSlide}
+
+      <audio
+        ref={audioRef}
+        src="/burnbabyburnroastpilot.mp3"
+        controls
+        autoPlay
+        preload="auto"
+        aria-label="Burn Baby Burn soundtrack"
+        className="fixed bottom-6 right-5 z-50 h-10 w-[16rem] max-w-[calc(100vw-2.5rem)] rounded-md border border-border bg-background/85 backdrop-blur-xl sm:right-8"
+      />
+
+      <div className="fixed bottom-5 left-1/2 z-50 flex -translate-x-1/2 items-center gap-3 rounded-lg border border-border bg-background/85 px-3 py-2 backdrop-blur-xl">
+        <button
+          type="button"
+          onClick={goPrev}
+          disabled={activeIndex === 0}
+          aria-label="Previous slide"
+          className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-surface hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+        >
+          <ChevronLeft className="size-5" />
+        </button>
+
+        <div className="flex items-center gap-1.5">
+          {slideMeta.map((slide, index) => (
+            <button
+              key={slide.id}
+              type="button"
+              onClick={() => goTo(index)}
+              aria-label={`Go to ${slide.kicker}`}
+              className={`h-2 rounded-full transition-all ${
+                index === activeIndex
+                  ? 'w-8 bg-ember-1 shadow-[0_0_16px_rgba(255,107,26,0.6)]'
+                  : 'w-2 bg-muted hover:bg-muted-foreground'
+              }`}
+            />
+          ))}
+        </div>
+
+        <button
+          type="button"
+          onClick={goNext}
+          disabled={activeIndex === slideMeta.length - 1}
+          aria-label="Next slide"
+          className="flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-surface hover:text-foreground disabled:pointer-events-none disabled:opacity-30"
+        >
+          <ChevronRight className="size-5" />
+        </button>
+      </div>
+
+      <div className="fixed bottom-6 left-6 z-40 hidden items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground md:flex">
+        <ArrowLeft className="size-4" />
+        <span>{activeMeta.kicker}</span>
+        <ArrowRight className="size-4" />
+      </div>
+    </main>
+  );
 }
