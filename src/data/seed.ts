@@ -22,7 +22,7 @@ export const SEED_POSTS: SeedPost[] = [
     isPinned: true,
     title:
       "AITA for continuing to build Roastpilot after another guy got mad we had the same idea?",
-    body: `So we are a small team building this app — Roastpilot. It is an AITA-style platform where Claude Opus delivers a verdict on your dilemma and humans pile on after. Trustpilot for being told you suck.
+    body: `So we are a small team building this app — Roastpilot. It is an AITA-style platform where AI delivers a verdict on your dilemma and humans pile on after. Trustpilot for being told you suck.
 
 We were halfway through building it when a stranger reached out and said he was building literally the same thing. He got pissed off. Wanted us to stop. We initially agreed and pulled back.
 

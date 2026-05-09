@@ -108,7 +108,7 @@ export function LiveVerdictPanel({
   return (
     <div>
       <p className="text-ink-soft mb-4">
-        No verdict yet. Hit the button — Claude Opus deliberates live, on stream.
+        No verdict yet. Hit the button — The AI deliberates live, on stream.
       </p>
       <button
         onClick={run}

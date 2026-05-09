@@ -153,7 +153,7 @@ function NameInline({ onSet }: { onSet: (n: string) => void }) {
   return (
     <div className="rounded-xl border border-rule bg-paper p-5 noise-texture">
       <div className="font-semibold text-ink mb-1">Pick a handle to comment</div>
-      <p className="text-sm text-ink-soft mb-3">Stored locally. No account needed.</p>
+      <p className="text-sm text-ink-soft mb-3">Pick something you'll remember.</p>
       <div className="flex gap-2">
         <input autoFocus value={draft} onChange={(e) => setDraft(e.target.value)}
           placeholder="e.g. throwaway42"

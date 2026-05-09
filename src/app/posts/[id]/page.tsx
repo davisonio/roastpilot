@@ -66,7 +66,7 @@ export default async function PostPage({
             Claude&rsquo;s verdict
           </h2>
           <span className="text-[11px] uppercase tracking-[0.16em] text-ink-soft">
-            Opus 4.6, judging in your stead
+            AI, judging in your stead
           </span>
         </div>
         {post.aiVerdict && post.aiResponse ? (

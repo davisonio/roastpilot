@@ -31,7 +31,7 @@ export default async function Home() {
           <span className="text-accent-bright">We&rsquo;ll tell you</span> if you&rsquo;re the asshole.
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-ink-soft">
-          Post a dilemma. <strong className="text-ink">Claude Opus</strong> drops a verdict.
+          Post a dilemma. <strong className="text-ink">AI drops a verdict.</strong>
           The court of public opinion piles on after. Trustpilot, but for being told you suck.
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-3">

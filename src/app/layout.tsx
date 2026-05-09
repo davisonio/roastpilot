@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   title: "Roastpilot — Am I The Asshole, judged by AI and humans",
-  description: "Post your dilemma. Claude Opus delivers a verdict. Real humans pile on. Trustpilot, but for being told you suck.",
+  description: "Post your dilemma. AI delivers a verdict. Real humans pile on. Trustpilot, but for being told you suck.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -21,14 +21,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="min-h-full flex flex-col bg-background text-ink">
         <header className="sticky top-0 z-20 border-b border-rule bg-background/80 backdrop-blur-md">
           <div className="mx-auto max-w-5xl px-6 h-14 flex items-center justify-between gap-4">
-            <Link href="/" className="flex items-center gap-3 group shrink-0">
-              <Logo variant="mark" height={28} className="transition-opacity group-hover:opacity-80" />
-              <span className="font-display font-semibold text-lg tracking-tight text-ink group-hover:text-accent transition-colors hidden sm:block">
-                Roastpilot
-              </span>
-              <span className="text-[11px] uppercase tracking-[0.18em] text-ink-soft pl-2 border-l border-rule hidden md:inline">
-                AITA, but settled
-              </span>
+            <Link href="/" className="flex items-center gap-2 group shrink-0">
+              <Logo variant="horizontal" height={36} className="transition-opacity group-hover:opacity-80" />
             </Link>
             <nav className="flex items-center gap-1 text-sm text-ink-soft">
               <Link href="/" className="px-3 py-1.5 rounded-full hover:bg-paper-2 hover:text-ink transition-colors">Feed</Link>
@@ -50,7 +44,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               <Logo variant="mark" height={16} />
               <span>Roastpilot</span>
             </Link>
-            <span>Verdicts by Claude Opus + the court of public opinion.</span>
+            <span>Verdicts by AI + the court of public opinion.</span>
           </div>
         </footer>
       </body>

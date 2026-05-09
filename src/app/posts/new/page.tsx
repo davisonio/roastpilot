@@ -63,7 +63,7 @@ export default function NewPostPage() {
       </p>
       <h1 className="font-display text-4xl font-semibold text-ink leading-tight tracking-tight">Confess. We&rsquo;ll judge.</h1>
       <p className="mt-2 text-ink-soft">
-        Claude Opus delivers the first verdict. Real humans pile on after.
+        AI delivers the first verdict. Real humans pile on after.
       </p>
 
       {!name ? (
@@ -121,7 +121,7 @@ function NamePrompt({ onSet }: { onSet: (n: string) => void }) {
     <div className="mt-8 rounded-xl border border-rule bg-paper p-6">
       <h2 className="font-semibold text-ink mb-1">First, pick a handle</h2>
       <p className="text-sm text-ink-soft mb-4">
-        Whatever you want. Stored locally in your browser. No password, no email.
+        Whatever you want.
       </p>
       <div className="flex gap-2">
         <input
