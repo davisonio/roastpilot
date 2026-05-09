@@ -26,9 +26,12 @@ import "@solana/wallet-adapter-react-ui/styles.css";
 export type SessionUser = {
   id: string;
   handleSol: string;
-  walletAddress: string;
+  walletAddress: string | null;
+  email: string | null;
   pohVerified: boolean;
+  roasterVerified: boolean;
   roastPoints: number;
+  roastsWon: number;
 };
 
 type SessionState = {

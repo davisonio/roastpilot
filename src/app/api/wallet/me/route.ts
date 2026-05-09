@@ -11,8 +11,11 @@ export async function GET() {
       id: user.id,
       handleSol: user.handleSol,
       walletAddress: user.walletAddress,
+      email: user.email,
       pohVerified: user.pohVerified,
+      roasterVerified: user.roasterVerified,
       roastPoints: user.roastPoints,
+      roastsWon: user.roastsWon,
     },
   });
 }

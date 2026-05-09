@@ -7,7 +7,7 @@ import type { PointsReason } from "./points";
 
 export class InsufficientPointsError extends Error {
   constructor(public have: number, public need: number) {
-    super(`Need 🔥${need}, have 🔥${have}`);
+    super(`Need ${need} 🔥 points, have ${have}`);
   }
 }
 
@@ -44,4 +44,11 @@ export function adjustPoints(opts: {
 
     return { balance: user.roastPoints + delta };
   });
+}
+
+export function bumpRoastsWon(userId: string) {
+  db.update(users)
+    .set({ roastsWon: sql`${users.roastsWon} + 1` })
+    .where(eq(users.id, userId))
+    .run();
 }

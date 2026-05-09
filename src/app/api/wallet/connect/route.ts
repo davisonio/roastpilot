@@ -31,13 +31,17 @@ export async function POST(req: Request) {
     .get();
 
   if (!user) {
-    // First time: create user, run POH, give starting points.
     const poh = await checkProofOfHumanity(walletAddress);
+
     let handle: string;
     let attempts = 0;
     while (true) {
       handle = generateHandle();
-      const exists = db.select().from(users).where(eq(users.handleSol, handle)).get();
+      const exists = db
+        .select()
+        .from(users)
+        .where(eq(users.handleSol, handle))
+        .get();
       if (!exists) break;
       if (++attempts > 8) {
         handle = `${handle.replace(".sol", "")}${Date.now() % 9999}.sol`;
@@ -52,17 +56,23 @@ export async function POST(req: Request) {
         walletAddress,
         handleSol: handle,
         pohVerified: poh.verified,
-        paidSignup: false, // pay-to-signup is currently a stub; flip when wired
+        roasterVerified: poh.verified, // demo: POH-passing wallets become roasters
         roastPoints: 0,
       })
       .run();
 
-    // Grant the signup bonus through the ledger so it shows in history.
     adjustPoints({
       userId: newId,
       delta: POINTS.signupBonus,
       reason: "signupBonus",
     });
+    if (poh.verified) {
+      adjustPoints({
+        userId: newId,
+        delta: POINTS.pohBonus,
+        reason: "pohBonus",
+      });
+    }
 
     user = db.select().from(users).where(eq(users.id, newId)).get()!;
   }
@@ -75,8 +85,9 @@ export async function POST(req: Request) {
       handleSol: user.handleSol,
       walletAddress: user.walletAddress,
       pohVerified: user.pohVerified,
-      paidSignup: user.paidSignup,
+      roasterVerified: user.roasterVerified,
       roastPoints: user.roastPoints,
+      roastsWon: user.roastsWon,
       pohDemoMode: POH_DEMO_MODE,
     },
   });
