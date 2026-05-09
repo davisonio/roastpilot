@@ -41,11 +41,11 @@ export default async function PostPage({
 
       <article>
         {post.isPinned ? (
-          <span className="inline-block bg-accent text-paper text-[10px] uppercase tracking-[0.2em] font-bold px-2.5 py-1 rounded-full mb-3">
+          <span className="inline-block bg-accent text-background text-[10px] uppercase tracking-[0.2em] font-bold px-2.5 py-1 rounded-full mb-3 shadow-[0_0_15px_rgba(255,107,26,0.45)]">
             Live demo · pinned
           </span>
         ) : null}
-        <h1 className="text-4xl font-bold text-ink leading-tight tracking-tight">{post.title}</h1>
+        <h1 className="font-display text-4xl sm:text-5xl font-semibold text-ink leading-[1.1] tracking-tight">{post.title}</h1>
         <div className="mt-3 flex items-center gap-2.5 text-sm text-ink-soft">
           <span>
             posted by <span className="font-medium text-ink">u/{post.authorName}</span>
@@ -60,7 +60,7 @@ export default async function PostPage({
 
       <div className="gavel-rule my-10" />
 
-      <section className="rounded-2xl border border-rule bg-paper p-6">
+      <section className="rounded-2xl border border-rule bg-paper p-6 noise-texture relative heat-glow-1">
         <div className="flex items-baseline justify-between mb-3">
           <h2 className="text-sm font-semibold tracking-wide uppercase text-ink-soft">
             Claude&rsquo;s verdict

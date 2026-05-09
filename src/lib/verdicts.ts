@@ -17,11 +17,11 @@ export const VERDICT_BLURBS: Record<Verdict, string> = {
 };
 
 export const VERDICT_TONE: Record<Verdict, { bg: string; text: string; ring: string }> = {
-  YTA: { bg: "bg-red-100", text: "text-red-900", ring: "ring-red-300" },
-  NTA: { bg: "bg-emerald-100", text: "text-emerald-900", ring: "ring-emerald-300" },
-  ESH: { bg: "bg-orange-100", text: "text-orange-900", ring: "ring-orange-300" },
-  NAH: { bg: "bg-sky-100", text: "text-sky-900", ring: "ring-sky-300" },
-  INFO: { bg: "bg-zinc-100", text: "text-zinc-900", ring: "ring-zinc-300" },
+  YTA: { bg: "bg-red-500/15", text: "text-red-300", ring: "ring-red-500/35" },
+  NTA: { bg: "bg-emerald-500/15", text: "text-emerald-300", ring: "ring-emerald-500/35" },
+  ESH: { bg: "bg-orange-500/15", text: "text-orange-300", ring: "ring-orange-500/35" },
+  NAH: { bg: "bg-sky-500/15", text: "text-sky-300", ring: "ring-sky-500/35" },
+  INFO: { bg: "bg-zinc-500/15", text: "text-zinc-300", ring: "ring-zinc-500/35" },
 };
 
 export const VERDICTS: Verdict[] = ["YTA", "NTA", "ESH", "NAH", "INFO"];

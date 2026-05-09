@@ -1,0 +1,272 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Ember Design System - Fire & Ember color palette */
+@theme inline {
+  /* Core colors mapped to theme variables */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+
+  /* Ember progression colors */
+  --color-ember-1: var(--ember-1);
+  --color-ember-2: var(--ember-2);
+  --color-ember-3: var(--ember-3);
+  --color-ember-4: var(--ember-4);
+  --color-cool: var(--cool);
+
+  /* Font families */
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-lora);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-lora);
+
+  /* Shadcn theme variables */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Radius */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+/* Ember color palette - always dark, warm undertones */
+:root {
+  /* Base colors - near-black with warm undertones */
+  --background: #0a0706;
+  --foreground: #f4ede4;
+  --surface: #1a1412;
+
+  /* Cool state for unroasted content */
+  --cool: #5c6878;
+
+  /* Ember progression - heat increases brightness */
+  --ember-1: #ff6b1a;  /* Base ember orange */
+  --ember-2: #ff8c42;  /* Hot ember */
+  --ember-3: #ffb347;  /* Bright ember */
+  --ember-4: #ffd96e;  /* Pale gold - peak heat */
+
+  /* Text colors */
+  --text-primary: #f4ede4;
+  --text-secondary: #a89c8c;
+
+  /* Shadcn theme colors - warm variants */
+  --card: #1a1412;
+  --card-foreground: #f4ede4;
+  --popover: #1a1412;
+  --popover-foreground: #f4ede4;
+  --primary: #ff6b1a;
+  --primary-foreground: #0a0706;
+  --secondary: #2a2220;
+  --secondary-foreground: #f4ede4;
+  --muted: #2a2220;
+  --muted-foreground: #a89c8c;
+  --accent: #ff6b1a;
+  --accent-foreground: #0a0706;
+  --destructive: #dc2626;
+  --border: #3a3230;
+  --input: #2a2220;
+  --ring: #ff6b1a;
+  --radius: 0.75rem;
+
+  /* Heat glow intensities */
+  --heat-glow-0: 0 0 0 rgba(255, 107, 26, 0);
+  --heat-glow-1: 0 0 20px rgba(255, 107, 26, 0.3), 0 0 40px rgba(255, 107, 26, 0.1);
+  --heat-glow-2: 0 0 30px rgba(255, 140, 66, 0.4), 0 0 60px rgba(255, 140, 66, 0.15);
+  --heat-glow-3: 0 0 40px rgba(255, 179, 71, 0.5), 0 0 80px rgba(255, 179, 71, 0.2);
+  --heat-glow-4: 0 0 50px rgba(255, 217, 110, 0.6), 0 0 100px rgba(255, 217, 110, 0.25);
+}
+
+/* No light mode - Roast is always dark like a late-night fire pit */
+.dark {
+  /* Same as root - always dark */
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth;
+  }
+
+  /* Serif for display/content text */
+  .font-display {
+    font-family: var(--font-lora), Georgia, 'Times New Roman', serif;
+  }
+
+  /* Selection color - ember orange */
+  ::selection {
+    background-color: rgba(255, 107, 26, 0.3);
+    color: #f4ede4;
+  }
+}
+
+/* Animation keyframes */
+@keyframes breathe {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes ember-breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+@keyframes heat-pulse {
+  0%, 100% {
+    box-shadow: var(--heat-glow-3);
+  }
+  50% {
+    box-shadow: var(--heat-glow-4);
+  }
+}
+
+@keyframes ignite {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  30% {
+    transform: scale(1.05);
+    filter: brightness(1.4);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+@keyframes particle-rise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-40px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation classes */
+.animate-breathe {
+  animation: breathe 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-ember-breathe {
+  animation: ember-breathe 10s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-heat-pulse {
+  animation: heat-pulse 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-ignite {
+  animation: ignite 700ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-particle {
+  animation: particle-rise 800ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 500ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Heat glow utility classes */
+.heat-glow-0 {
+  box-shadow: var(--heat-glow-0);
+  border-color: var(--cool);
+}
+
+.heat-glow-1 {
+  box-shadow: var(--heat-glow-1);
+  border-color: var(--ember-1);
+}
+
+.heat-glow-2 {
+  box-shadow: var(--heat-glow-2);
+  border-color: var(--ember-2);
+}
+
+.heat-glow-3 {
+  box-shadow: var(--heat-glow-3);
+  border-color: var(--ember-3);
+}
+
+.heat-glow-4 {
+  box-shadow: var(--heat-glow-4);
+  border-color: var(--ember-4);
+}
+
+/* Transition utilities */
+.transition-heat {
+  transition: box-shadow 600ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 600ms cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 600ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Noise texture for cards (subtle warmth) */
+.noise-texture {
+  position: relative;
+}
+
+.noise-texture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  border-radius: inherit;
+}

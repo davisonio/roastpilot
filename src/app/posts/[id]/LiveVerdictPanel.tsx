@@ -92,12 +92,12 @@ export function LiveVerdictPanel({
     return (
       <div>
         <div className="text-xs uppercase tracking-[0.18em] text-accent font-semibold mb-2 flex items-center gap-2">
-          <span className="inline-block size-2 rounded-full bg-accent animate-pulse" />
+          <span className="inline-block size-2 rounded-full bg-accent shadow-[0_0_8px_rgba(255,107,26,0.8)] animate-ember-breathe" />
           Claude is deliberating live...
         </div>
         <pre className="text-ink whitespace-pre-wrap font-sans leading-relaxed">{streamed}</pre>
         {error ? (
-          <div className="mt-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          <div className="mt-3 text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">
             {error}
           </div>
         ) : null}
@@ -112,12 +112,12 @@ export function LiveVerdictPanel({
       </p>
       <button
         onClick={run}
-        className="inline-flex items-center gap-2 rounded-full bg-accent text-paper px-5 h-10 font-semibold hover:bg-accent-strong transition-colors"
+        className="inline-flex items-center gap-2 rounded-full bg-accent text-background px-5 h-10 font-semibold hover:bg-accent-strong shadow-[0_0_22px_rgba(255,107,26,0.35)] hover:shadow-[0_0_32px_rgba(255,107,26,0.55)] transition-all"
       >
         Drop the gavel →
       </button>
       {error ? (
-        <div className="mt-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+        <div className="mt-3 text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">
           {error}
         </div>
       ) : null}
