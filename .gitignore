@@ -44,8 +44,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# local db
-roastpilot.db
+# local db (we commit roastpilot.db itself for the Vercel demo build)
 roastpilot.db-shm
 roastpilot.db-wal
 
