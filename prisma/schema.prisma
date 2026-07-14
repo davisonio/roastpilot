@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Verdict {
+  YTA
+  NTA
+  ESH
+  NAH
+  INFO
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  authorName  String
+  title       String
+  body        String
+  aiVerdict   Verdict?
+  aiResponse  String?
+  isPinned    Boolean   @default(false)
+  isSeed      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  comments    Comment[]
+
+  @@index([isPinned, createdAt])
+}
+
+model Comment {
+  id          String   @id @default(cuid())
+  postId      String
+  post        Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorName  String
+  verdict     Verdict
+  body        String
+  isSeed      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([postId, createdAt])
+}
